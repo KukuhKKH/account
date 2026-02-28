@@ -58,8 +58,8 @@ class LogtoController extends Controller
 
         try {
             $authResult = $this->logtoService->authenticateWithAuthorizationCode($code);
-            $user = $authResult['user'];
-            $tokens = $authResult['tokens'];
+            $user       = $authResult['user'];
+            $tokens     = $authResult['tokens'];
 
             Session::put([
                 'logto_access_token'     => $tokens['access_token'],
@@ -92,11 +92,14 @@ class LogtoController extends Controller
         $appId       = config('services.logto.app_id');
         $redirectUri = url('/');
 
-        $logoutUrl = "$endpoint/oidc/logout?" . http_build_query([
+        $logoutUrl = "$endpoint/oidc/session/end?" . http_build_query([
                 'client_id'                => $appId,
                 'post_logout_redirect_uri' => $redirectUri,
             ]);
 
-        return redirect($logoutUrl);
+        return redirect($logoutUrl)
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }

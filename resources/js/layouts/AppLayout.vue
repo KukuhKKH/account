@@ -172,7 +172,30 @@ const isLoading = ref(false)
 
 const logout = async (e: Event) => {
   e.preventDefault()
-  router.post(route('auth.logout'))
+
+  try {
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = route('auth.logout')
+
+    const token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+
+    if (!token) {
+      console.error('CSRF token not found')
+      return
+    }
+
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = '_token'
+    input.value = token
+    form.appendChild(input)
+
+    document.body.appendChild(form)
+    form.submit()
+  } catch (err) {
+    window.location.href = '/'
+  }
 }
 
 // Close user menu when clicking outside
