@@ -6,9 +6,7 @@
       <!-- Logo -->
       <div class="mb-8 flex justify-center">
         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
-          <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+          <Zap class="h-7 w-7 text-white" />
         </div>
       </div>
 
@@ -28,14 +26,7 @@
         :href="route('auth.login')"
         class="group flex w-full items-center justify-center gap-3 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-all hover:bg-blue-700 active:scale-95"
       >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-          />
-        </svg>
+        <LogIn class="h-5 w-5" />
         <span>Login to BangLipai Secure Portal</span>
       </a>
 
@@ -55,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { route } from 'ziggy-js';
-import ToastContainer from '@/components/ToastContainer.vue';
+import { route } from 'ziggy-js'
+import { Zap, LogIn } from 'lucide-vue-next'
+import ToastContainer from '@/components/ToastContainer.vue'
 </script>

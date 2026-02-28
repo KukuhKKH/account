@@ -25,19 +25,7 @@
               </p>
             </div>
             <div class="rounded-lg bg-blue-100 p-3 dark:bg-blue-900">
-              <svg
-                class="h-6 w-6 text-blue-600 dark:text-blue-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 4H9m6 16H9m6-5a4 4 0 11-8 0m8 0v5"
-                />
-              </svg>
+              <Users class="h-6 w-6 text-blue-600 dark:text-blue-300" />
             </div>
           </div>
         </div>
@@ -54,19 +42,7 @@
               </p>
             </div>
             <div class="rounded-lg bg-purple-100 p-3 dark:bg-purple-900">
-              <svg
-                class="h-6 w-6 text-purple-600 dark:text-purple-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
+              <Zap class="h-6 w-6 text-purple-600 dark:text-purple-300" />
             </div>
           </div>
         </div>
@@ -83,19 +59,7 @@
               </p>
             </div>
             <div class="rounded-lg bg-green-100 p-3 dark:bg-green-900">
-              <svg
-                class="h-6 w-6 text-green-600 dark:text-green-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                />
-              </svg>
+              <Shield class="h-6 w-6 text-green-600 dark:text-green-300" />
             </div>
           </div>
         </div>
@@ -112,19 +76,7 @@
               </p>
             </div>
             <div class="rounded-lg bg-orange-100 p-3 dark:bg-orange-900">
-              <svg
-                class="h-6 w-6 text-orange-600 dark:text-orange-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 4H9m6 16H9m6-5a4 4 0 11-8 0m8 0v5"
-                />
-              </svg>
+              <Users class="h-6 w-6 text-orange-600 dark:text-orange-300" />
             </div>
           </div>
         </div>
@@ -154,19 +106,7 @@
               href="/users/create"
               class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
-              <svg
-                class="-ml-1 mr-2 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
+              <Plus class="-ml-1 mr-2 h-4 w-4" />
               New User
             </Link>
             <Link
@@ -263,6 +203,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import { Users, Zap, Shield, Plus } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { usePage } from '@inertiajs/vue3'
 import { User, UserStatistics } from '@/types/auth'
