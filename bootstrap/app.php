@@ -3,10 +3,14 @@
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckUserRole;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Services\ErrorPageService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,5 +30,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (Throwable $e, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            if ($e instanceof HttpException) {
+                $debugMessage = config('app.debug') ? $e->getMessage() : null;
+                return ErrorPageService::render($e, $request, $debugMessage);
+            }
+
+            if ($e instanceof NotFoundHttpException) {
+                return ErrorPageService::render(404, $request);
+            }
+
+            return null;
+        });
     })->create();
