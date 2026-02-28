@@ -23,7 +23,7 @@ return [
     ],
 
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
+        'key'    => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
@@ -31,8 +31,17 @@ return [
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
-            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+            'channel'              => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
 
+    'logto' => [
+        'endpoint'     => env('LOGTO_ENDPOINT'),
+        'app_id'       => env('LOGTO_APP_ID'),
+        'app_secret'   => env('LOGTO_APP_SECRET'),
+        'redirect_uri' => env('LOGTO_REDIRECT_URI'),
+
+        'management_api_resource'   => env('LOGTO_MANAGEMENT_API_RESOURCE'),
+        'management_api_identifier' => env('LOGTO_MANAGEMENT_API_IDENTIFIER'),
+    ],
 ];
