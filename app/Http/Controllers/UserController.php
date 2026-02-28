@@ -118,6 +118,10 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
 
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri.');
+        }
+
         try {
             $this->userService->deleteUser($user);
 

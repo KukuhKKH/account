@@ -258,12 +258,3 @@ const submitForm = async () => {
   transform: translateX(100%);
 }
 </style>
-      },
-      onSuccess: () => {
-      },
-    })
-  } finally {
-    saving.value = false
-  }
-}
-</script>
