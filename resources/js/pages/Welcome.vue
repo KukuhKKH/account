@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import { computed } from 'vue';
+import type { Auth } from '../types/auth';
+import ToastContainer from '@/components/ToastContainer.vue';
 
-const page = usePage()
+const page = usePage<{ auth: Auth }>()
 const auth = computed(() => page.props.auth)
 </script>
 
 <template>
   <Head title="Welcome" />
+  <!-- Toast Notifications -->
+  <ToastContainer />
   <div class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6 dark:from-gray-900 dark:to-gray-800">
     <div class="text-center">
       <!-- Logo -->
@@ -22,7 +27,7 @@ const auth = computed(() => page.props.auth)
       <!-- Title -->
       <h1 class="text-5xl font-bold text-gray-900 dark:text-white">Account Management</h1>
       <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">
-        Manage users dengan Logto integration
+        Manage profile with ease using our secure portal powered by BangLipai authentication.
       </p>
 
       <!-- Action Buttons -->
@@ -39,11 +44,12 @@ const auth = computed(() => page.props.auth)
           </Link>
         </div>
         <div v-else>
+          <!-- Plain anchor tag for OAuth redirect (not Inertia Link) to allow full page navigation -->
           <a
-            href="#"
+            :href="route('auth.login')"
             class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
-            Sign In with Logto
+            Enter BangLipai Secure Portal
             <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -75,9 +81,9 @@ const auth = computed(() => page.props.auth)
               </svg>
             </div>
           </div>
-          <h3 class="mt-4 font-semibold text-gray-900 dark:text-white">Logto Security</h3>
+          <h3 class="mt-4 font-semibold text-gray-900 dark:text-white">BangLipai Secure Portal</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Secure authentication with Logto OAuth2, token caching, and BFF pattern
+            Secure authentication with BangLipai Secure Portal, token caching, and BFF pattern
           </p>
         </div>
 

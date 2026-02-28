@@ -32,10 +32,56 @@ class LogtoRemote
 
     protected function client(): PendingRequest
     {
-        return Http::baseUrl($this->endpoint)
+        $http = Http::baseUrl($this->endpoint)
             ->timeout(10)
             ->connectTimeout(5)
             ->acceptJson();
+
+        if (app()->environment('production')) {
+            $http->withOptions(['verify' => true]);
+        } else {
+            $caPath = 'infra/certs/_wildcard.logto.test.pem';
+            $http->withOptions([
+                'verify' => file_exists($caPath) ? $caPath : false
+            ]);
+        }
+
+        return $http;
+    }
+
+    /**
+     * @throws RequestException|ConnectionException
+     */
+    public function exchangeAuthorizationCode(string $code): array
+    {
+        $response = $this->client()
+            ->asForm()
+            ->post('/oidc/token', [
+                'client_id'     => $this->appId,
+                'client_secret' => $this->appSecret,
+                'grant_type'    => 'authorization_code',
+                'code'          => $code,
+                'redirect_uri'  => config('services.logto.redirect_uri'),
+            ]);
+
+        $response->throw();
+        return $response->json();
+    }
+
+    /**
+     * @throws RequestException|ConnectionException
+     */
+    public function revokeRefreshToken(string $refreshToken): void
+    {
+        $response = $this->client()
+            ->asForm()
+            ->post('/oidc/token/revocation', [
+                'client_id'     => $this->appId,
+                'client_secret' => $this->appSecret,
+                'token'         => $refreshToken,
+            ]);
+
+        $response->throw();
     }
 
     /**

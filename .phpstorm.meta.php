@@ -1190,6 +1190,12 @@ namespace PHPSTORM_META {
             'services.ses.region' => 'string',
             'services.slack.notifications.bot_user_oauth_token' => 'NULL',
             'services.slack.notifications.channel' => 'NULL',
+            'services.logto.endpoint' => 'string',
+            'services.logto.app_id' => 'string',
+            'services.logto.app_secret' => 'string',
+            'services.logto.redirect_uri' => 'string',
+            'services.logto.management_api_resource' => 'string',
+            'services.logto.management_api_identifier' => 'string',
             'session.driver' => 'string',
             'session.lifetime' => 'integer',
             'session.expire_on_close' => 'boolean',
@@ -1630,6 +1636,12 @@ namespace PHPSTORM_META {
             'services.ses.region' => 'string',
             'services.slack.notifications.bot_user_oauth_token' => 'NULL',
             'services.slack.notifications.channel' => 'NULL',
+            'services.logto.endpoint' => 'string',
+            'services.logto.app_id' => 'string',
+            'services.logto.app_secret' => 'string',
+            'services.logto.redirect_uri' => 'string',
+            'services.logto.management_api_resource' => 'string',
+            'services.logto.management_api_identifier' => 'string',
             'session.driver' => 'string',
             'session.lifetime' => 'integer',
             'session.expire_on_close' => 'boolean',
@@ -2070,6 +2082,12 @@ namespace PHPSTORM_META {
             'services.ses.region' => 'string',
             'services.slack.notifications.bot_user_oauth_token' => 'NULL',
             'services.slack.notifications.channel' => 'NULL',
+            'services.logto.endpoint' => 'string',
+            'services.logto.app_id' => 'string',
+            'services.logto.app_secret' => 'string',
+            'services.logto.redirect_uri' => 'string',
+            'services.logto.management_api_resource' => 'string',
+            'services.logto.management_api_identifier' => 'string',
             'session.driver' => 'string',
             'session.lifetime' => 'integer',
             'session.expire_on_close' => 'boolean',
@@ -2158,7 +2176,9 @@ namespace PHPSTORM_META {
     override(\tap(0), type(0));
     override(\optional(0), type(0));
 
-            registerArgumentsSet('auth', );
+            registerArgumentsSet('auth', 
+'viewAny','view','create','update','delete',
+'restore','forceDelete',);
         registerArgumentsSet('configs', 
 'broadcasting.default','broadcasting.connections.reverb.driver','broadcasting.connections.reverb.key','broadcasting.connections.reverb.secret','broadcasting.connections.reverb.app_id',
 'broadcasting.connections.reverb.options.host','broadcasting.connections.reverb.options.port','broadcasting.connections.reverb.options.scheme','broadcasting.connections.reverb.options.useTLS','broadcasting.connections.reverb.client_options',
@@ -2237,20 +2257,24 @@ namespace PHPSTORM_META {
 'queue.connections.redis.block_for','queue.connections.redis.after_commit','queue.connections.deferred.driver','queue.connections.failover.driver','queue.connections.failover.connections',
 'queue.connections.background.driver','queue.batching.database','queue.batching.table','queue.failed.driver','queue.failed.database',
 'queue.failed.table','services.postmark.key','services.resend.key','services.ses.key','services.ses.secret',
-'services.ses.region','services.slack.notifications.bot_user_oauth_token','services.slack.notifications.channel','session.driver','session.lifetime',
-'session.expire_on_close','session.encrypt','session.files','session.connection','session.table',
-'session.store','session.lottery','session.cookie','session.path','session.domain',
-'session.secure','session.http_only','session.same_site','session.partitioned','ide-helper.filename',
-'ide-helper.models_filename','ide-helper.meta_filename','ide-helper.include_fluent','ide-helper.include_factory_builders','ide-helper.write_model_magic_where',
-'ide-helper.write_model_external_builder_methods','ide-helper.write_model_relation_count_properties','ide-helper.write_model_relation_exists_properties','ide-helper.write_eloquent_model_mixins','ide-helper.include_helpers',
-'ide-helper.helper_files','ide-helper.model_locations','ide-helper.ignored_models','ide-helper.model_hooks','ide-helper.extra.Eloquent',
-'ide-helper.extra.Session','ide-helper.magic','ide-helper.interfaces','ide-helper.model_camel_case_properties','ide-helper.type_overrides.integer',
-'ide-helper.type_overrides.boolean','ide-helper.include_class_docblocks','ide-helper.force_fqn','ide-helper.use_generics_annotations','ide-helper.macro_default_return_types.Illuminate\\Http\\Client\\Factory',
-'ide-helper.additional_relation_types','ide-helper.additional_relation_return_types','ide-helper.enforce_nullable_relationships','ide-helper.post_migrate','tinker.commands',
-'tinker.alias','tinker.dont_alias','tinker.trust_project',);
+'services.ses.region','services.slack.notifications.bot_user_oauth_token','services.slack.notifications.channel','services.logto.endpoint','services.logto.app_id',
+'services.logto.app_secret','services.logto.redirect_uri','services.logto.management_api_resource','services.logto.management_api_identifier','session.driver',
+'session.lifetime','session.expire_on_close','session.encrypt','session.files','session.connection',
+'session.table','session.store','session.lottery','session.cookie','session.path',
+'session.domain','session.secure','session.http_only','session.same_site','session.partitioned',
+'ide-helper.filename','ide-helper.models_filename','ide-helper.meta_filename','ide-helper.include_fluent','ide-helper.include_factory_builders',
+'ide-helper.write_model_magic_where','ide-helper.write_model_external_builder_methods','ide-helper.write_model_relation_count_properties','ide-helper.write_model_relation_exists_properties','ide-helper.write_eloquent_model_mixins',
+'ide-helper.include_helpers','ide-helper.helper_files','ide-helper.model_locations','ide-helper.ignored_models','ide-helper.model_hooks',
+'ide-helper.extra.Eloquent','ide-helper.extra.Session','ide-helper.magic','ide-helper.interfaces','ide-helper.model_camel_case_properties',
+'ide-helper.type_overrides.integer','ide-helper.type_overrides.boolean','ide-helper.include_class_docblocks','ide-helper.force_fqn','ide-helper.use_generics_annotations',
+'ide-helper.macro_default_return_types.Illuminate\\Http\\Client\\Factory','ide-helper.additional_relation_types','ide-helper.additional_relation_return_types','ide-helper.enforce_nullable_relationships','ide-helper.post_migrate',
+'tinker.commands','tinker.alias','tinker.dont_alias','tinker.trust_project',);
         registerArgumentsSet('middleware', 
 'web','api',);
-        registerArgumentsSet('routes', 'home','storage.local','storage.local.upload',);
+        registerArgumentsSet('routes', 'home','auth.login','auth.callback','auth.logout',
+'dashboard','profile.show','users.index','users.create','users.store',
+'users.show','users.edit','users.update','users.destroy','storage.local',
+'storage.local.upload',);
         registerArgumentsSet('views', 
 'app','laravel-exceptions-renderer::components.badge','laravel-exceptions-renderer::components.empty-state','laravel-exceptions-renderer::components.file-with-line','laravel-exceptions-renderer::components.formatted-source',
 'laravel-exceptions-renderer::components.frame','laravel-exceptions-renderer::components.frame-code','laravel-exceptions-renderer::components.header','laravel-exceptions-renderer::components.http-method','laravel-exceptions-renderer::components.icons.alert',
@@ -2306,7 +2330,9 @@ namespace PHPSTORM_META {
 'REDIS_HOST','REDIS_PASSWORD','REDIS_PORT','MAIL_MAILER','MAIL_SCHEME',
 'MAIL_HOST','MAIL_PORT','MAIL_USERNAME','MAIL_PASSWORD','MAIL_FROM_ADDRESS',
 'MAIL_FROM_NAME','AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY','AWS_DEFAULT_REGION','AWS_BUCKET',
-'AWS_USE_PATH_STYLE_ENDPOINT','VITE_APP_NAME',);
+'AWS_USE_PATH_STYLE_ENDPOINT','VITE_APP_NAME','LOGTO_ENDPOINT','LOGTO_APP_ID','LOGTO_APP_SECRET',
+'LOGTO_REDIRECT_URI','LOGTO_MANAGEMENT_API_RESOURCE','LOGTO_MANAGEMENT_API_IDENTIFIER','LOGTO_MANAGEMENT_APP_ID','LOGTO_MANAGEMENT_APP_SECRET',
+'LOGTO_WEBHOOK_SECRET','LOGTO_WEBHOOK_URL',);
         
                 expectedArguments(\Illuminate\Support\Facades\Gate::has(), 0, argumentsSet('auth'));
     expectedArguments(\Illuminate\Support\Facades\Gate::allows(), 0, argumentsSet('auth'));

@@ -32,7 +32,7 @@ export type SignInLog = {
 };
 
 export type Auth = {
-    user: User;
+    user?: User | null;
 };
 
 export type UserStatistics = {

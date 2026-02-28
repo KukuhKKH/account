@@ -1,5 +1,7 @@
 <template>
   <div class="flex h-screen flex-col bg-gray-50 dark:bg-gray-950">
+    <!-- Toast Notifications -->
+    <ToastContainer />
     <!-- Navbar -->
     <nav class="border-b border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -133,6 +135,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Link, usePage, router } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
+import ToastContainer from '@/components/ToastContainer.vue'
 
 const page = usePage()
 const auth = computed(() => page.props.auth)
@@ -141,8 +144,7 @@ const userMenuRef = ref(null)
 
 const logout = async (e: Event) => {
   e.preventDefault()
-  // TODO: Implement logout route with Logto
-  // router.post('/logout')
+  router.post(route('auth.logout'))
 }
 
 // Close user menu when clicking outside

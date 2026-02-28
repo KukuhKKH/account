@@ -1,14 +1,12 @@
 <template>
-  <Teleport to="body">
-    <Transition name="toast-group">
-      <div
-        v-if="visible"
-        :class="[
-          'fixed right-4 top-4 z-50 flex max-w-sm gap-3 rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm md:right-6 md:top-6',
-          variantClasses
-        ]"
-        role="alert"
-      >
+  <div
+    v-if="visible && (message || title)"
+    :class="[
+      'pointer-events-auto flex w-full max-w-sm gap-3 rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm',
+      variantClasses
+    ]"
+    role="alert"
+  >
         <!-- Icon -->
         <div :class="['shrink-0', iconColorClass]">
           <svg v-if="type === 'success'" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -49,6 +47,7 @@
 
         <!-- Close Button -->
         <button
+          type="button"
           @click="close"
           :class="['shrink-0 rounded-md p-1 transition-colors hover:bg-white/20', textColorClass]"
           aria-label="Close notification"
@@ -61,9 +60,7 @@
             />
           </svg>
         </button>
-      </div>
-    </Transition>
-  </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -71,29 +68,30 @@ import { computed, onMounted, ref } from 'vue'
 
 interface Props {
   type?: 'success' | 'error' | 'warning' | 'info'
-  message: string
+  message?: string
   title?: string
   duration?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'info',
+  message: '',
+  title: '',
   duration: 5000,
 })
 
 const visible = ref(true)
 
 const variantClasses = computed(() => {
-  const baseClasses = 'border'
   switch (props.type) {
     case 'success':
-      return `${baseClasses} border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/50`
+      return `border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/50`
     case 'error':
-      return `${baseClasses} border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/50`
+      return `border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/50`
     case 'warning':
-      return `${baseClasses} border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/50`
+      return `border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/50`
     default:
-      return `${baseClasses} border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/50`
+      return `border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/50`
   }
 })
 
@@ -136,19 +134,4 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.toast-group-enter-active,
-.toast-group-leave-active {
-  transition: all 0.3s ease;
-}
-
-.toast-group-enter-from {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.toast-group-leave-to {
-  opacity: 0;
-  transform: translateX(100%);
-}
-</style>
+<style scoped></style>

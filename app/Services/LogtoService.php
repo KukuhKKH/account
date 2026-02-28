@@ -9,12 +9,79 @@ use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class LogtoService
 {
     public function __construct(
         protected LogtoRemote $remote,
     ) {}
+
+    /**
+     * @throws RequestException|ConnectionException|Exception
+     */
+    public function authenticateWithAuthorizationCode(string $code): array
+    {
+        $tokens = $this->remote->exchangeAuthorizationCode($code);
+
+        $idToken = $tokens['id_token'] ?? null;
+        if (!$idToken) {
+            throw new Exception('Missing id_token from authentication response.');
+        }
+
+        $claims = $this->decodeIdToken($idToken);
+
+        $logtoId = $claims['sub'] ?? null;
+        $email   = $claims['email'] ?? (($claims['username'] ?? null) ? ($claims['username'] . Str::random(3) . '@banglipai.tech') : null);
+        $name    = $claims['name'] ?? $claims['preferred_username'] ?? 'User';
+        $picture = $claims['picture'] ?? null;
+        $phone   = $claims['phone_number'] ?? null;
+
+        if (!$logtoId || !$email) {
+            throw new Exception('Invalid user information from BangLipai Secure Portal.');
+        }
+
+        $user = User::query()
+            ->where('logto_id', '=', $logtoId)
+            ->first();
+
+        if (!$user) {
+            $user = new User();
+
+            $user->password = Str::random();
+            $user->logto_id = $logtoId;
+            $user->role     = 'user';
+        }
+
+        $user->email  = $email;
+        $user->name   = $name;
+        $user->avatar = $picture;
+
+        if ($phone) {
+            $user->phone = $phone;
+        }
+
+        $user->last_login_at = now();
+        $user->save();
+
+        return [
+            'user'   => $user,
+            'tokens' => $tokens,
+        ];
+    }
+
+    public function revokeRefreshToken(?string $refreshToken): void
+    {
+        if (!$refreshToken) {
+            return;
+        }
+
+        try {
+            $this->remote->revokeRefreshToken($refreshToken);
+        } catch (Exception $e) {
+            Log::warning('Failed to revoke token: ' . $e->getMessage());
+        }
+    }
 
     /**
      * @param array $userData
@@ -95,7 +162,7 @@ class LogtoService
                 collect($userData)
                     ->only(['role', 'address'])
                     ->filter()
-                    ->toArray()
+                    ->toArray(),
             );
 
             if (!empty($customData)) {
@@ -202,7 +269,10 @@ class LogtoService
         try {
             $logtoUser = $this->remote->getUser($logtoId);
 
-            $user = User::where('logto_id', $logtoId)->first();
+            $user = User::query()
+                ->where('logto_id', $logtoId)
+                ->first();
+
             if (!$user) {
                 $user           = new User();
                 $user->logto_id = $logtoId;
@@ -319,5 +389,18 @@ class LogtoService
             str_contains($ua, 'linux')   => 'Linux',
             default                      => 'Unknown',
         };
+    }
+
+    protected function decodeIdToken(string $idToken): array
+    {
+        $parts = explode('.', $idToken);
+        if (count($parts) < 2) {
+            return [];
+        }
+
+        [, $payload] = $parts;
+
+        $decoded = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+        return is_array($decoded) ? $decoded : [];
     }
 }
