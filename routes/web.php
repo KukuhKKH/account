@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LogtoController;
 use App\Http\Controllers\UserController;
+use App\Models\UserRole;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -16,7 +17,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
 
-    Route::middleware('role:superadmin,admin')->group(function () {
+    $roles = [UserRole::ROLE_SUPERADMIN, UserRole::ROLE_ADMIN];
+    Route::middleware("role:" . implode(',', $roles))->group(function () {
         Route::resource('users', UserController::class);
     });
 });

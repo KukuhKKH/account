@@ -1,5 +1,3 @@
-export type UserRole = 'superadmin' | 'admin' | 'user';
-
 export type User = {
     id: number;
     name: string;
@@ -9,7 +7,7 @@ export type User = {
     logto_id?: string;
     phone?: string;
     address?: string;
-    role: UserRole;
+    roles?: string[];
     last_login_at?: string;
     custom_data?: Record<string, unknown>;
     created_at: string;

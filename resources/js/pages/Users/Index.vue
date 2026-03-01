@@ -39,9 +39,9 @@
                 class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               >
                 <option value="">All Roles</option>
-                <option value="superadmin">Superadmin</option>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
+                <option :value="roles.SUPERADMIN">{{ roles.SUPERADMIN }}</option>
+                <option :value="roles.ADMIN">{{ roles.ADMIN }}</option>
+                <option :value="roles.USER">{{ roles.USER }}</option>
               </select>
             </div>
 
@@ -102,13 +102,9 @@
                 <td class="px-6 py-4">
                   <span
                     class="inline-flex rounded-full px-2 py-1 text-xs font-medium"
-                    :class="{
-                      'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200': user.role === 'superadmin',
-                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': user.role === 'admin',
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': user.role === 'user'
-                    }"
+                    :class="getRoleBadgeClass(user.roles)"
                   >
-                    {{ user.role }}
+                    {{ getRoleDisplay(user.roles) }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
@@ -214,11 +210,14 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Toast from '@/components/Toast.vue'
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal.vue'
 import { useToast } from '@/composables/useToast'
+import { useAuth } from '@/composables/useAuth'
 
 const page = usePage()
 const { toasts, success, error } = useToast()
+const { getRoleBadgeClass, getRoleDisplay } = useAuth()
 const auth = computed(() => page.props.auth as any)
 const users = computed(() => page.props.users as any)
+const roles = computed(() => page.props.roles as any)
 
 // Modal state
 const showDeleteModal = ref(false)

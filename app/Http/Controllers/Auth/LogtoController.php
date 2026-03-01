@@ -29,7 +29,7 @@ class LogtoController extends Controller
         $endpoint    = config('services.logto.endpoint');
         $appId       = config('services.logto.app_id');
         $redirectUri = config('services.logto.redirect_uri');
-        $scopes      = 'openid profile email phone offline_access';
+        $scopes      = 'openid profile email phone offline_access roles';
 
         $authorizeUrl = "$endpoint/oidc/auth?" . http_build_query([
                 'client_id'     => $appId,

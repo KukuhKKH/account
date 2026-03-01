@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->string('avatar')->nullable()->after('email');
             $table->string('phone')->nullable()->after('avatar');
             $table->text('address')->nullable()->after('phone');
-            $table->enum('role', ['superadmin', 'admin', 'user'])->default('user')->after('address')->index();
             $table->timestamp('last_login_at')->nullable()->after('role');
             $table->json('custom_data')->nullable()->after('last_login_at');
         });
@@ -32,7 +31,6 @@ return new class extends Migration {
                 'avatar',
                 'phone',
                 'address',
-                'role',
                 'last_login_at',
                 'custom_data',
             ]);

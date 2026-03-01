@@ -77,9 +77,9 @@
               class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 transition-colors focus:border-blue-500 focus:outline-none disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:disabled:bg-gray-700"
             >
               <option value="">Select Role</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="superadmin">Superadmin</option>
+              <option :value="roles.USER">{{ roles.USER }}</option>
+              <option :value="roles.ADMIN">{{ roles.ADMIN }}</option>
+              <option v-if="isSuperadmin" :value="roles.SUPERADMIN">{{ roles.SUPERADMIN }}</option>
             </select>
             <p v-if="errors.role" class="mt-1 text-sm text-red-600">{{ errors.role }}</p>
           </div>
@@ -179,9 +179,12 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import FormSkeleton from '@/components/FormSkeleton.vue'
 import Toast from '@/components/Toast.vue'
 import { useToast } from '@/composables/useToast'
+import { useAuth } from '@/composables/useAuth'
 
 const page = usePage()
 const { toasts, success, error } = useToast()
+const { isSuperadmin } = useAuth()
+const roles = computed(() => page.props.roles as any)
 const saving = ref(false)
 const errors = ref<Record<string, string>>({})
 

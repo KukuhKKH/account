@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\CreateUserData;
 use App\Data\UpdateUserData;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Models\UserSignInLog;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,16 +20,25 @@ class UserService
     ) {}
 
     /**
-     * @param array $filters
-     * @param int   $perPage
+     * @param array     $filters
+     * @param int       $perPage
+     * @param User|null $currentUser
      * @return Paginator
      */
-    public function listUsers(array $filters = [], int $perPage = 15): Paginator
+    public function listUsers(array $filters = [], int $perPage = 15, ?User $currentUser = null): Paginator
     {
         $query = User::query();
 
+        if ($currentUser && $currentUser->isAdmin() && !$currentUser->isSuperadmin()) {
+            $query->whereDoesntHave('roles', function ($q) {
+                $q->where('role', UserRole::ROLE_SUPERADMIN);
+            });
+        }
+
         if (!empty($filters['role'])) {
-            $query->where('role', $filters['role']);
+            $query->whereHas('roles', function ($q) use ($filters) {
+                $q->where('role', $filters['role']);
+            });
         }
 
         if (!empty($filters['search'])) {
@@ -125,15 +135,25 @@ class UserService
      */
     public function getUserStatistics(): array
     {
-        return [
-            'total_users' => User::query()->count(),
+        $totalUsers = User::query()->count();
 
-            'superadmins'   => User::query()->where('role', 'superadmin')->count(),
-            'admins'        => User::query()->where('role', 'admin')->count(),
-            'regular_users' => User::query()->where('role', 'user')->count(),
+        return [
+            'total_users' => $totalUsers,
+
+            'superadmins' => User::query()->whereHas('roles', function ($query) {
+                $query->where('role', UserRole::ROLE_SUPERADMIN);
+            })->count(),
+
+            'admins' => User::query()->whereHas('roles', function ($query) {
+                $query->where('role', UserRole::ROLE_ADMIN);
+            })->count(),
+
+            'regular_users' => User::query()->whereHas('roles', function ($query) {
+                $query->where('role', UserRole::ROLE_USER);
+            })->count(),
 
             'total_sign_ins'            => UserSignInLog::query()->count(),
-            'average_sign_ins_per_user' => (int)(UserSignInLog::query()->count() / max(User::query()->count(), 1)),
+            'average_sign_ins_per_user' => (int)(UserSignInLog::query()->count() / max($totalUsers, 1)),
         ];
     }
 }

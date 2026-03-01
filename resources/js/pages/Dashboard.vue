@@ -102,7 +102,7 @@
           </h3>
           <div class="mt-4 flex gap-2">
             <Link
-              v-if="auth.user.role !== 'user'"
+              v-if="canManageUsers"
               href="/users/create"
               class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
@@ -207,7 +207,9 @@ import { Users, Zap, Shield, Plus } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { usePage } from '@inertiajs/vue3'
 import { User, UserStatistics } from '@/types/auth'
+import { useAuth } from '@/composables/useAuth'
 
+const { canManageUsers } = useAuth()
 const page = usePage()
 const auth = computed(() => page.props.auth)
 const statistics = computed(() => page.props.statistics as UserStatistics)

@@ -107,7 +107,7 @@
           </Link>
 
           <!-- User Management (Admin Only) -->
-          <div v-if="auth.user?.role !== 'user'" class="space-y-2">
+          <div v-if="canManageUsers" class="space-y-2">
             <p class="px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600">Management</p>
             <Link
               href="/users"
@@ -162,9 +162,11 @@ import { Link, usePage, router } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
 import { Menu, X, Zap, ChevronDown, LayoutGrid, Users, Settings } from 'lucide-vue-next'
 import ToastContainer from '@/components/ToastContainer.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const page = usePage()
 const auth = computed(() => page.props.auth)
+const { canManageUsers } = useAuth()
 const userMenuOpen = ref(false)
 const sidebarOpen = ref(true)
 const userMenuRef = ref(null)

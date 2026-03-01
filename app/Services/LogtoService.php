@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\UserRole;
 use App\Models\UserSignInLog;
 use App\Remote\LogtoRemote;
 use Exception;
@@ -37,6 +38,11 @@ class LogtoService
         $picture = $claims['picture'] ?? null;
         $phone   = $claims['phone_number'] ?? null;
 
+        $logtoRoles = $claims['roles'] ?? [];
+        if (!is_array($logtoRoles)) {
+            $logtoRoles = [$logtoRoles];
+        }
+
         if (!$logtoId || !$email) {
             throw new Exception('Invalid user information from BangLipai Secure Portal.');
         }
@@ -50,7 +56,6 @@ class LogtoService
 
             $user->password = Str::random();
             $user->logto_id = $logtoId;
-            $user->role     = 'user';
         }
 
         $user->email  = $email;
@@ -64,10 +69,34 @@ class LogtoService
         $user->last_login_at = now();
         $user->save();
 
+        $this->syncUserRoles($user, $logtoRoles);
+
         return [
             'user'   => $user,
             'tokens' => $tokens,
         ];
+    }
+
+    private function syncUserRoles(User $user, array $logtoRoles): void
+    {
+        $existingRoles = $user->roles()->pluck('role')->toArray();
+        $rolesToAdd    = array_diff($logtoRoles, $existingRoles);
+        $rolesToRemove = array_diff($existingRoles, $logtoRoles);
+
+        $roles = [];
+        foreach ($rolesToAdd as $role) {
+            if (!empty($role)) {
+                $roles[] = new UserRole([
+                    'role' => $role,
+                ]);
+            }
+        }
+
+        $user->roles()->saveMany($roles);
+
+        if (!empty($rolesToRemove)) {
+            $user->roles()->whereIn('role', $rolesToRemove)->delete();
+        }
     }
 
     public function revokeRefreshToken(?string $refreshToken): void
@@ -115,14 +144,23 @@ class LogtoService
             $localUser->email    = $userData['email'];
             $localUser->phone    = $userData['phone'] ?? null;
             $localUser->address  = $userData['address'] ?? null;
-            $localUser->role     = $userData['role'] ?? 'user';
 
             $localUser->custom_data = [
-                'role' => $userData['role'] ?? 'user',
+                'role' => $userData['role'] ?? [UserRole::ROLE_USER],
             ];
 
             $localUser->avatar = $userData['avatar'] ?? null;
             $localUser->save();
+
+            $roles = [];
+            if (isset($userData['role'])) {
+                $roles[] = new UserRole([
+                    'role' => $userData['role'],
+                ]);
+            }
+
+            $localUser->roles()
+                ->saveMany($roles);
 
             Log::info('User created successfully', [
                 'local_user_id' => $localUser->id,
@@ -178,7 +216,6 @@ class LogtoService
                 'email'       => $userData['email'] ?? $user->email,
                 'phone'       => $userData['phone'] ?? $user->phone,
                 'address'     => $userData['address'] ?? $user->address,
-                'role'        => $userData['role'] ?? $user->role,
                 'avatar'      => $userData['avatar'] ?? $user->avatar,
                 'custom_data' => $customData,
             ])->save();
@@ -240,7 +277,11 @@ class LogtoService
 
             $this->remote->updateCustomData($user->logto_id, $customData);
 
-            $user->role        = $role;
+            $user->roles()->delete();
+            $user->roles()->save(new UserRole([
+                'role' => $role,
+            ]));
+
             $user->custom_data = $customData;
             $user->save();
 
@@ -249,7 +290,7 @@ class LogtoService
                 'role'    => $role,
             ]);
 
-            return $user->fresh();
+            return $user->fresh(['roles']);
         } catch (RequestException $e) {
             Log::error('Failed to sync role to Logto', [
                 'message' => $e->getMessage(),
@@ -286,7 +327,10 @@ class LogtoService
             $user->custom_data = $logtoUser['customData'] ?? $user->custom_data;
 
             if (isset($logtoUser['customData']['role'])) {
-                $user->role = $logtoUser['customData']['role'];
+                $user->roles()->delete();
+                $user->roles()->save(new UserRole([
+                    'role' => $logtoUser['customData']['role'],
+                ]));
             }
 
             $user->save();

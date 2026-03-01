@@ -17,8 +17,8 @@ class LogtoRemote
     protected string $managementApiResource;
     protected string $managementApiIdentifier;
 
-    protected const M2M_TOKEN_CACHE_KEY = 'logto_m2m_token';
-    protected const M2M_TOKEN_CACHE_TTL = 3300;
+    protected const string M2M_TOKEN_CACHE_KEY = 'logto_m2m_token';
+    protected const int    M2M_TOKEN_CACHE_TTL = 3300;
 
     public function __construct()
     {
@@ -42,7 +42,7 @@ class LogtoRemote
         } else {
             $caPath = 'infra/certs/_wildcard.logto.test.pem';
             $http->withOptions([
-                'verify' => file_exists($caPath) ? $caPath : false
+                'verify' => file_exists($caPath) ? $caPath : false,
             ]);
         }
 

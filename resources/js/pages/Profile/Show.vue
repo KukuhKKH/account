@@ -46,13 +46,9 @@
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Role</p>
               <span
                 class="mt-1 inline-flex rounded-full px-3 py-1 text-sm font-medium"
-                :class="{
-                  'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200': user.role === 'superadmin',
-                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': user.role === 'admin',
-                  'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': user.role === 'user'
-                }"
-              >
-                {{ user.role }}
+                  :class="getRoleBadgeClass(user.roles)"
+                >
+                  {{ getRoleDisplay(user.roles) }}
               </span>
             </div>
           </div>
@@ -162,7 +158,9 @@ import { Link, usePage } from '@inertiajs/vue3'
 import { Pencil } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { User } from '@/types/auth'
+import { useAuth } from '@/composables/useAuth'
 
+const { getRoleBadgeClass, getRoleDisplay } = useAuth()
 const page = usePage()
 const user = computed(() => page.props.user as User)
 const signInLogs = computed(() => page.props.signInLogs)

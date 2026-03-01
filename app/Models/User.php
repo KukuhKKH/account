@@ -23,7 +23,6 @@ use Illuminate\Support\Carbon;
  * @property string|null                         $avatar
  * @property string|null                         $phone
  * @property string|null                         $address
- * @property string                              $role
  * @property Carbon|null                         $last_login_at
  * @property array|null                          $custom_data
  * @property Carbon                              $created_at
@@ -42,7 +41,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static> whereAvatar($value)
  * @method static Builder<static> wherePhone($value)
  * @method static Builder<static> whereAddress($value)
- * @method static Builder<static> whereRole($value)
  * @method static Builder<static> whereLastLoginAt($value)
  * @method static Builder<static> whereCustomData($value)
  * @method static Builder<static> whereCreatedAt($value)
@@ -53,7 +51,13 @@ use Illuminate\Support\Carbon;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
+
+    /**
+     * Temporary storage for roles array
+     */
+    protected array $rolesCache = [];
 
     /**
      * The attributes that are mass assignable.
@@ -68,7 +72,6 @@ class User extends Authenticatable
         'avatar',
         'phone',
         'address',
-        'role',
         'last_login_at',
         'custom_data',
     ];
@@ -81,6 +84,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'roles',
     ];
 
     /**
@@ -107,11 +111,35 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all roles assigned to the user from Logto.
+     */
+    public function roles(): HasMany
+    {
+        return $this->hasMany(UserRole::class);
+    }
+
+    /**
+     * Get role names as array.
+     */
+    public function getRoleNames(): array
+    {
+        return $this->roles()->pluck('role')->toArray();
+    }
+
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('role', $role)->exists();
+    }
+
+    /**
      * Check if the user is a superadmin.
      */
     public function isSuperadmin(): bool
     {
-        return $this->role === 'superadmin';
+        return $this->hasRole(UserRole::ROLE_SUPERADMIN);
     }
 
     /**
@@ -119,7 +147,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->hasRole(UserRole::ROLE_ADMIN);
     }
 
     /**
@@ -127,7 +155,7 @@ class User extends Authenticatable
      */
     public function isUser(): bool
     {
-        return $this->role === 'user';
+        return $this->hasRole(UserRole::ROLE_USER);
     }
 
     /**
@@ -135,6 +163,61 @@ class User extends Authenticatable
      */
     public function canManageUsers(): bool
     {
-        return in_array($this->role, ['superadmin', 'admin']);
+        return $this->hasRole(UserRole::ROLE_SUPERADMIN) || $this->hasRole(UserRole::ROLE_ADMIN);
+    }
+
+    /**
+     * Override toArray to include roles as a calculated property without persisting to DB.
+     */
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+
+        if ($this->relationLoaded('roles')) {
+            $array['roles'] = $this->getRoleNames();
+        } elseif (!empty($this->rolesCache)) {
+            $array['roles'] = $this->rolesCache;
+        }
+
+        return $array;
+    }
+
+    /**
+     * Override setAttribute to prevent 'roles' from being persisted to database.
+     */
+    public function setAttribute($key, $value)
+    {
+        if ($key === 'roles') {
+            $this->rolesCache = $value;
+            return $this;
+        }
+
+        return parent::setAttribute($key, $value);
+    }
+
+    /**
+     * Override getAttribute to return roles array if it was set.
+     */
+    public function getAttribute($key)
+    {
+        if ($key === 'roles' && !empty($this->rolesCache)) {
+            return $this->rolesCache;
+        }
+
+        return parent::getAttribute($key);
+    }
+
+    /**
+     * Boot the model with event listeners.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            unset($model->attributes['roles']);
+            unset($model->attributes['_roles_array']);
+            unset($model->attributes['_rolesArray']);
+        });
     }
 }

@@ -27,7 +27,10 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         $filters = request()->only(['search', 'role', 'order_by', 'order_direction']);
-        $users   = $this->userService->listUsers($filters);
+        $users   = $this->userService->listUsers($filters, currentUser: auth()->user());
+
+        $users->getCollection()
+            ->load('roles');
 
         return Inertia::render('Users/Index', [
             'users'   => $users,
@@ -70,7 +73,7 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
 
-        $user->load('signInLogs');
+        $user->load(['signInLogs', 'roles']);
         $signInLogs = $this->userService->getUserSignInHistory($user, 20);
 
         return Inertia::render('Users/Show', [
@@ -86,6 +89,8 @@ class UserController extends Controller
     public function edit(User $user): Response
     {
         $this->authorize('update', $user);
+
+        $user->load('roles');
 
         return Inertia::render('Users/Edit', [
             'user' => $user,
@@ -137,7 +142,9 @@ class UserController extends Controller
      */
     public function profile(): Response
     {
-        $user       = auth()->user();
+        $user = auth()->user();
+        $user->load('roles');
+
         $signInLogs = $this->userService->getUserSignInHistory($user);
 
         return Inertia::render('Profile/Show', [
@@ -153,6 +160,8 @@ class UserController extends Controller
     {
         $statistics    = $this->userService->getUserStatistics();
         $recentSignIns = $this->userService->getRecentSignIns();
+
+        $recentSignIns->load('roles');
 
         return Inertia::render('Dashboard', [
             'statistics'    => $statistics,

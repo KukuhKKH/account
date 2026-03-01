@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 /**
  * Form request untuk update user.
@@ -29,24 +29,16 @@ class UpdateUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
-        $user = $this->route('user');
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+        return [
+            'name'    => ['required', 'string', 'max:255'],
+            'phone'   => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
-            'avatar' => ['nullable', 'url', 'max:500'],
+            'avatar'  => ['nullable', 'url', 'max:500'],
         ];
-
-        // Admin bisa update role, user regular tidak
-        if (auth()->user()->canManageUsers()) {
-            $rules['role'] = ['required', Rule::in(['superadmin', 'admin', 'user'])];
-        }
-
-        return $rules;
     }
 
     /**
@@ -56,8 +48,7 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name.required' => 'Nama harus diisi.',
-            'name.string' => 'Nama harus berupa teks.',
-            'role.in' => 'Role tidak valid.',
+            'name.string'   => 'Nama harus berupa teks.',
         ];
     }
 }

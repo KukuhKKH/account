@@ -55,25 +55,6 @@
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Email tidak bisa diubah</p>
           </div>
 
-          <!-- Role (Admin only) -->
-          <div v-if="isAdmin">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Role <span class="text-red-600">*</span>
-            </label>
-            <select
-              v-model="form.role"
-              required
-              :disabled="saving"
-              class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 transition-colors focus:border-blue-500 focus:outline-none disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:disabled:bg-gray-700"
-            >
-              <option value="">Select Role</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="superadmin">Superadmin</option>
-            </select>
-            <p v-if="errors.role" class="mt-1 text-sm text-red-600">{{ errors.role }}</p>
-          </div>
-
           <!-- Phone -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
@@ -180,7 +161,6 @@ const errors = ref<Record<string, string>>({})
 // Get user from page props
 const user = computed(() => page.props.user as User)
 const auth = computed(() => page.props.auth)
-const isAdmin = computed(() => auth.value.user.role !== 'user')
 
 // Check if page is loading
 const isLoading = computed(() => !user.value || !user.value.id)
@@ -188,7 +168,6 @@ const isLoading = computed(() => !user.value || !user.value.id)
 const form = useForm({
   name: user.value?.name || '',
   email: user.value?.email || '',
-  role: user.value?.role || '',
   phone: user.value?.phone || '',
   address: user.value?.address || '',
   avatar: user.value?.avatar || '',
@@ -201,7 +180,6 @@ watch(
     if (newUser) {
       form.name = newUser.name
       form.email = newUser.email
-      form.role = newUser.role
       form.phone = newUser.phone || ''
       form.address = newUser.address || ''
       form.avatar = newUser.avatar || ''

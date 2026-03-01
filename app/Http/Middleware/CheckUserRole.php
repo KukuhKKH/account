@@ -17,8 +17,17 @@ class CheckUserRole
             return redirect()->route('auth.login');
         }
 
-        $userRole = auth()->user()->role;
-        if (!in_array($userRole, $roles)) {
+        $user = auth()->user();
+
+        $hasRequiredRole = false;
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
+                $hasRequiredRole = true;
+                break;
+            }
+        }
+
+        if (!$hasRequiredRole) {
             abort(403, 'Unauthorized. You do not have permission to access this resource.');
         }
 

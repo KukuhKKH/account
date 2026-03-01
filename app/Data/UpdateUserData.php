@@ -4,7 +4,6 @@ namespace App\Data;
 
 /**
  * @property string  $name
- * @property ?string $role
  * @property ?string $phone
  * @property ?string $address
  * @property ?string $avatar
@@ -16,7 +15,6 @@ class UpdateUserData
         public readonly ?string $phone = null,
         public readonly ?string $address = null,
         public readonly ?string $avatar = null,
-        public readonly ?string $role = null,
     ) {}
 
     /**
@@ -29,7 +27,6 @@ class UpdateUserData
             phone  : $data['phone'] ?? null,
             address: $data['address'] ?? null,
             avatar : $data['avatar'] ?? null,
-            role   : $data['role'] ?? null,
         );
     }
 
@@ -44,7 +41,6 @@ class UpdateUserData
                 'phone'   => $this->phone,
                 'address' => $this->address,
                 'avatar'  => $this->avatar,
-                'role'    => $this->role,
             ],
             fn($value) => $value !== null,
         );
