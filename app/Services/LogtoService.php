@@ -142,6 +142,7 @@ class LogtoService
             $localUser->logto_id = $logtoId;
             $localUser->name     = $userData['name'];
             $localUser->email    = $userData['email'];
+            $localUser->password = isset($userData['password']) ? bcrypt($userData['password']) : Str::random();
             $localUser->phone    = $userData['phone'] ?? null;
             $localUser->address  = $userData['address'] ?? null;
 
