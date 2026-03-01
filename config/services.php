@@ -46,5 +46,7 @@ return [
 
         'management_app_id'     => env('LOGTO_MANAGEMENT_APP_ID'),
         'management_app_secret' => env('LOGTO_MANAGEMENT_APP_SECRET'),
+
+        'webhook_secret' => env('LOGTO_WEBHOOK_SECRET'),
     ],
 ];

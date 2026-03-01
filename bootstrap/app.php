@@ -3,6 +3,7 @@
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckUserRole;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\VerifyLogtoWebhook;
 use App\Services\ErrorPageService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,8 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'auth' => Authenticate::class,
-            'role' => CheckUserRole::class,
+            'auth'                   => Authenticate::class,
+            'role'                   => CheckUserRole::class,
+            'verify.logto.webhook'   => VerifyLogtoWebhook::class,
         ]);
 
         $middleware->web(append: [

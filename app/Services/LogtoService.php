@@ -404,7 +404,7 @@ class LogtoService
      * @param string $userAgent
      * @return string
      */
-    protected function extractBrowser(string $userAgent): string
+    public function extractBrowser(string $userAgent): string
     {
         $ua = strtolower($userAgent);
 
@@ -421,7 +421,7 @@ class LogtoService
      * @param string $userAgent
      * @return string
      */
-    protected function extractOS(string $userAgent): string
+    public function extractOS(string $userAgent): string
     {
         $ua = strtolower($userAgent);
 
