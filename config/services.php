@@ -42,6 +42,9 @@ return [
         'redirect_uri' => env('LOGTO_REDIRECT_URI'),
 
         'management_api_resource'   => env('LOGTO_MANAGEMENT_API_RESOURCE'),
-        'management_api_identifier' => env('LOGTO_MANAGEMENT_API_IDENTIFIER'),
+        'management_api_identifier' => env('LOGTO_MANAGEMENT_API_IDENTIFIER', 'https://default.logto.app/api'),
+
+        'management_app_id'     => env('LOGTO_MANAGEMENT_APP_ID'),
+        'management_app_secret' => env('LOGTO_MANAGEMENT_APP_SECRET'),
     ],
 ];

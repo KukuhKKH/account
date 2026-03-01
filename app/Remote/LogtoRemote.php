@@ -2,6 +2,7 @@
 
 namespace App\Remote;
 
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -16,9 +17,11 @@ class LogtoRemote
     protected string $appSecret;
     protected string $managementApiResource;
     protected string $managementApiIdentifier;
+    protected string $managementAppId;
+    protected string $managementAppSecret;
 
-    protected const string M2M_TOKEN_CACHE_KEY = 'logto_m2m_token';
-    protected const int    M2M_TOKEN_CACHE_TTL = 3300;
+    protected const M2M_TOKEN_CACHE_KEY = 'logto_m2m_token';
+    protected const M2M_TOKEN_CACHE_TTL = 3300;
 
     public function __construct()
     {
@@ -28,6 +31,8 @@ class LogtoRemote
 
         $this->managementApiResource   = config('services.logto.management_api_resource');
         $this->managementApiIdentifier = config('services.logto.management_api_identifier');
+        $this->managementAppId         = config('services.logto.management_app_id');
+        $this->managementAppSecret     = config('services.logto.management_app_secret');
     }
 
     protected function client(): PendingRequest
@@ -97,10 +102,10 @@ class LogtoRemote
 
         try {
             $response = $this->client()
+                ->asForm()
+                ->withBasicAuth($this->managementAppId ?? '', $this->managementAppSecret ?? '')
                 ->post('/oidc/token', [
                     'grant_type'    => 'client_credentials',
-                    'client_id'     => $this->appId,
-                    'client_secret' => $this->appSecret,
                     'resource'      => $this->managementApiResource,
                     'scope'         => 'all',
                 ]);
@@ -108,13 +113,31 @@ class LogtoRemote
             $response->throw();
             $token = $response->json('access_token');
 
+            if (!$token) {
+                Log::error('Logto M2M token response missing access_token', [
+                    'response' => $response->json(),
+                    'endpoint' => $this->endpoint,
+                ]);
+
+                throw new Exception('No access_token in M2M token response');
+            }
+
             Cache::put(self::M2M_TOKEN_CACHE_KEY, $token, self::M2M_TOKEN_CACHE_TTL);
 
             return $token;
         } catch (RequestException $e) {
             Log::error('Logto M2M token error', [
+                'message'       => $e->getMessage(),
+                'status'        => $e->response?->status(),
+                'response_body' => $e->response?->body(),
+                'endpoint'      => $this->endpoint,
+                'client_id'     => $this->managementAppId,
+            ]);
+
+            throw $e;
+        } catch (Exception $e) {
+            Log::error('Logto M2M token exception', [
                 'message'  => $e->getMessage(),
-                'status'   => $e->response?->status(),
                 'endpoint' => $this->endpoint,
             ]);
 
