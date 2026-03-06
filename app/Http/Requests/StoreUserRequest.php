@@ -30,7 +30,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone'    => ['nullable', 'string', 'max:20'],
             'address'  => ['nullable', 'string', 'max:500'],
             'avatar'   => ['nullable', 'url', 'max:500'],
@@ -59,13 +59,14 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'     => 'Nama user harus diisi.',
-            'email.required'    => 'Email harus diisi.',
-            'email.unique'      => 'Email sudah terdaftar.',
-            'password.required' => 'Password harus diisi.',
-            'password.min'      => 'Password minimal 8 karakter.',
-            'role.required'     => 'Role harus dipilih.',
-            'role.in'           => 'Role tidak valid.',
+            'name.required'                 => 'Nama user harus diisi.',
+            'email.required'                => 'Email harus diisi.',
+            'email.unique'                  => 'Email sudah terdaftar.',
+            'password.required'             => 'Password harus diisi.',
+            'password.min'                  => 'Password minimal 8 karakter.',
+            'password.confirmed'            => 'Password dan konfirmasi password tidak sesuai.',
+            'role.required'                 => 'Role harus dipilih.',
+            'role.in'                       => 'Role tidak valid.',
         ];
     }
 }

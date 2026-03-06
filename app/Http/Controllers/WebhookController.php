@@ -31,11 +31,11 @@ class WebhookController extends Controller
             $data  = $payload['data'] ?? [];
 
             match ($event) {
-                'User.Created'  => $this->webhookHandler->handleUserCreated($data),
-                'User.Data.Updated'  => $this->webhookHandler->handleUserUpdated($data),
-                'User.Deleted'  => $this->webhookHandler->handleUserDeleted($data),
-                'User.SignedIn' => $this->webhookHandler->handleUserSignedIn($data),
-                default         => Log::warning('Unknown Logto webhook event', ['event' => $event]),
+                'User.Created'      => $this->webhookHandler->handleUserCreated($data),
+                'User.Data.Updated' => $this->webhookHandler->handleUserUpdated($data),
+                'User.Deleted'      => $this->webhookHandler->handleUserDeleted($data),
+                'User.SignedIn'     => $this->webhookHandler->handleUserSignedIn($data),
+                default             => Log::warning('Unknown Logto webhook event', ['event' => $event]),
             };
 
             return response('OK', 200);
