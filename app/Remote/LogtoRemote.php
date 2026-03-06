@@ -105,9 +105,9 @@ class LogtoRemote
                 ->asForm()
                 ->withBasicAuth($this->managementAppId ?? '', $this->managementAppSecret ?? '')
                 ->post('/oidc/token', [
-                    'grant_type'    => 'client_credentials',
-                    'resource'      => $this->managementApiResource,
-                    'scope'         => 'all',
+                    'grant_type' => 'client_credentials',
+                    'resource'   => $this->managementApiResource,
+                    'scope'      => 'all',
                 ]);
 
             $response->throw();
@@ -269,6 +269,138 @@ class LogtoRemote
         return $this->updateUser($userId, [
             'customData' => $customData,
         ]);
+    }
+
+    /**
+     * @param string $userId Logto user ID
+     * @return bool
+     * @throws RequestException|ConnectionException
+     */
+    public function sendPasswordResetEmail(string $userId): bool
+    {
+        $token = $this->getM2mToken();
+
+        try {
+            $response = $this->client()
+                ->withToken($token)
+                ->post("/api/users/{$userId}/password/reset", [
+                    'type' => 'email',
+                ]);
+
+            $response->throw();
+
+            Log::info('Logto password reset email sent', [
+                'user_id' => $userId,
+            ]);
+
+            return true;
+        } catch (RequestException $e) {
+            Log::error('Logto send password reset email error', [
+                'message'  => $e->getMessage(),
+                'status'   => $e->response?->status(),
+                'user_id'  => $userId,
+                'response' => $e->response?->body(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @param string $userId Logto user ID
+     * @param string $newPassword
+     * @return bool
+     * @throws RequestException|ConnectionException
+     */
+    public function updateUserPassword(string $userId, string $newPassword): bool
+    {
+        $token = $this->getM2mToken();
+
+        try {
+            $response = $this->client()
+                ->withToken($token)
+                ->patch("/api/users/{$userId}/password", [
+                    'password' => $newPassword,
+                ]);
+
+            $response->throw();
+
+            Log::info('BangLipai Secure Portal: user password updated', [
+                'user_id' => $userId,
+            ]);
+
+            return true;
+        } catch (RequestException $e) {
+            Log::error('BangLipai Secure Portal: update password error', [
+                'message'  => $e->getMessage(),
+                'status'   => $e->response?->status(),
+                'user_id'  => $userId,
+                'response' => $e->response?->body(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @param string $userId Logto user ID
+     * @param string $password
+     * @return bool
+     * @throws RequestException|ConnectionException|Exception
+     */
+    public function verifyUserPassword(string $userId, string $password): bool
+    {
+        $token = $this->getM2mToken();
+
+        try {
+            $userResponse = $this->client()
+                ->withToken($token)
+                ->get("/api/users/{$userId}");
+
+            $userResponse->throw();
+            $userData = $userResponse->json();
+
+            $username = $userData['username'] ?? $userData['primaryEmail'] ?? null;
+
+            if (!$username) {
+                throw new Exception('User tidak memiliki username atau email untuk verifikasi.');
+            }
+
+            $response = $this->client()
+                ->asForm()
+                ->post('/oidc/token', [
+                    'client_id'     => $this->appId,
+                    'client_secret' => $this->appSecret,
+                    'grant_type'    => 'password',
+                    'username'      => $username,
+                    'password'      => $password,
+                    'scope'         => 'openid profile email',
+                ]);
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            if ($response->status() === 401) {
+                throw new Exception('Password saat ini tidak valid.');
+            }
+
+            $response->throw();
+            return true;
+
+        } catch (RequestException $e) {
+            if ($e->response?->status() === 401) {
+                throw new Exception('Password saat ini tidak valid.');
+            }
+
+            Log::error('BangLipai Secure Portal: verify password error', [
+                'message' => $e->getMessage(),
+                'status'  => $e->response?->status(),
+                'user_id' => $userId,
+            ]);
+
+            throw $e;
+        }
     }
 
     /**

@@ -13,23 +13,29 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int                                 $id
- * @property string                              $name
- * @property string                              $email
- * @property string|null                         $email_verified_at
- * @property string                              $password
- * @property string|null                         $remember_token
- * @property string|null                         $logto_id
- * @property string|null                         $avatar
- * @property string|null                         $phone
- * @property string|null                         $address
- * @property Carbon|null                         $last_login_at
- * @property array|null                          $custom_data
- * @property Carbon                              $created_at
- * @property Carbon                              $updated_at
+ * @property int                                     $id
+ * @property string                                  $name
+ * @property string                                  $email
+ * @property string|null                             $email_verified_at
+ * @property string                                  $password
+ * @property string|null                             $remember_token
+ * @property string|null                             $logto_id
+ * @property string|null                             $avatar
+ * @property string|null                             $phone
+ * @property string|null                             $address
+ * @property Carbon|null                             $last_login_at
+ * @property array|null                              $custom_data
+ * @property Carbon                                  $created_at
+ * @property Carbon                                  $updated_at
  *
- * @property-read Collection<int, UserSignInLog> $signInLogs
- * @property-read int|null                       $sign_in_logs_count
+ * @property-read Collection<int, UserSignInLog>     $signInLogs
+ * @property-read int|null                           $sign_in_logs_count
+ * @property-read Collection<int, UserRole>          $roles
+ * @property-read int|null                           $roles_count
+ * @property-read Collection<int, PasswordChangeLog> $passwordChangeLogs
+ * @property-read int|null                           $password_change_logs_count
+ * @property-read Collection<int, PasswordChangeLog> $initiatedPasswordChanges
+ * @property-read int|null                           $initiated_password_changes_count
  *
  * @method static Builder<static> newModelQuery()
  * @method static Builder<static> newQuery()
@@ -104,6 +110,8 @@ class User extends Authenticatable
 
     /**
      * Get the sign-in logs for the user.
+     *
+     * @return HasMany
      */
     public function signInLogs(): HasMany
     {
@@ -112,6 +120,8 @@ class User extends Authenticatable
 
     /**
      * Get all roles assigned to the user from Logto.
+     *
+     * @return HasMany
      */
     public function roles(): HasMany
     {
@@ -119,7 +129,31 @@ class User extends Authenticatable
     }
 
     /**
+     * Get password change logs for this user.
+     * Returns all password changes made to this user's account.
+     *
+     * @return HasMany
+     */
+    public function passwordChangeLogs(): HasMany
+    {
+        return $this->hasMany(PasswordChangeLog::class, 'user_id');
+    }
+
+    /**
+     * Get password changes initiated by this user.
+     * Returns all password changes this user performed as an admin.
+     *
+     * @return HasMany
+     */
+    public function initiatedPasswordChanges(): HasMany
+    {
+        return $this->hasMany(PasswordChangeLog::class, 'changed_by_user_id');
+    }
+
+    /**
      * Get role names as array.
+     *
+     * @return array<int, string>
      */
     public function getRoleNames(): array
     {
@@ -128,6 +162,9 @@ class User extends Authenticatable
 
     /**
      * Check if user has a specific role.
+     *
+     * @param string $role
+     * @return bool
      */
     public function hasRole(string $role): bool
     {
@@ -136,6 +173,8 @@ class User extends Authenticatable
 
     /**
      * Check if the user is a superadmin.
+     *
+     * @return bool
      */
     public function isSuperadmin(): bool
     {
@@ -144,6 +183,8 @@ class User extends Authenticatable
 
     /**
      * Check if the user is an admin.
+     *
+     * @return bool
      */
     public function isAdmin(): bool
     {
@@ -152,6 +193,8 @@ class User extends Authenticatable
 
     /**
      * Check if the user is a regular user.
+     *
+     * @return bool
      */
     public function isUser(): bool
     {
@@ -160,6 +203,8 @@ class User extends Authenticatable
 
     /**
      * Check if the user can manage users.
+     *
+     * @return bool
      */
     public function canManageUsers(): bool
     {
@@ -168,6 +213,8 @@ class User extends Authenticatable
 
     /**
      * Override toArray to include roles as a calculated property without persisting to DB.
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -184,8 +231,12 @@ class User extends Authenticatable
 
     /**
      * Override setAttribute to prevent 'roles' from being persisted to database.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @return $this
      */
-    public function setAttribute($key, $value)
+    public function setAttribute($key, $value): static
     {
         if ($key === 'roles') {
             $this->rolesCache = $value;
@@ -197,6 +248,9 @@ class User extends Authenticatable
 
     /**
      * Override getAttribute to return roles array if it was set.
+     *
+     * @param string $key
+     * @return mixed
      */
     public function getAttribute($key)
     {
@@ -209,6 +263,9 @@ class User extends Authenticatable
 
     /**
      * Boot the model with event listeners.
+     * Prevents roles attribute from being saved to database.
+     *
+     * @return void
      */
     protected static function boot(): void
     {

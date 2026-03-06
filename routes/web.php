@@ -22,9 +22,12 @@ Route::post('/webhooks/logto', [WebhookController::class, 'handleLogtoWebhook'])
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
+    Route::post('/profile/password/change', [UserController::class, 'changePassword'])->name('profile.password.change');
 
     $roles = [UserRole::ROLE_SUPERADMIN, UserRole::ROLE_ADMIN];
     Route::middleware("role:" . implode(',', $roles))->group(function () {
         Route::resource('users', UserController::class);
+        Route::get('/users/{user}/reset-password', [UserController::class, 'showResetPasswordForm'])->name('users.reset-password.form');
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetUserPassword'])->name('users.reset-password');
     });
 });

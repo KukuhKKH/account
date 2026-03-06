@@ -9,13 +9,23 @@
           </h1>
           <p class="mt-2 text-gray-600 dark:text-gray-400">{{ user.email }}</p>
         </div>
-        <Link
-          :href="`/users/${user.id}/edit`"
-          class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-        >
-          <Pencil class="-ml-1 mr-2 h-5 w-5" />
-          Edit
-        </Link>
+        <div class="flex gap-3">
+          <Link
+            v-if="canResetPassword"
+            :href="`/users/${user.id}/reset-password`"
+            class="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-orange-600 to-red-600 px-6 py-2 font-medium text-white shadow-lg shadow-orange-500/50 transition-all hover:from-orange-700 hover:to-red-700 hover:shadow-xl dark:from-orange-500 dark:to-red-500 dark:hover:from-orange-600 dark:hover:to-red-600"
+          >
+            <Key class="-ml-1 mr-2 h-5 w-5" />
+            Reset Password
+          </Link>
+          <Link
+            :href="`/users/${user.id}/edit`"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          >
+            <Pencil class="-ml-1 mr-2 h-5 w-5" />
+            Edit
+          </Link>
+        </div>
       </div>
 
       <!-- User Info Cards -->
@@ -153,15 +163,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { Pencil } from 'lucide-vue-next'
+import { Pencil, Key } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { User, SignInLog } from '@/types/auth'
 import { useAuth } from '@/composables/useAuth'
 
-const { getRoleBadgeClass, getRoleDisplay } = useAuth()
+const { getRoleBadgeClass, getRoleDisplay, hasAnyRole } = useAuth()
 const page = usePage()
 const user = computed(() => page.props.user as User)
 const signInLogs = computed(() => page.props.signInLogs)
+
+// Only admin and superadmin can reset passwords
+const canResetPassword = computed(() =>
+  hasAnyRole(['superadmin', 'Admin Account'])
+)
 
 const formatDate = (date: string | null | undefined) => {
   if (!date) return '-'
