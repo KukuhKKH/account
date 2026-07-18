@@ -3,26 +3,29 @@ ARG STACK_NAME
 ARG IMAGE_NAMESPACE
 FROM ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-base:latest AS base_image
 
-FROM composer:2 AS vendor
+FROM base_image AS builder
 WORKDIR /app
+
+# Install composer and nodejs for building
+RUN apk add --no-cache nodejs npm composer && npm install -g pnpm@9
+
+# Build PHP dependencies
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
 
-FROM node:24-alpine AS frontend
-WORKDIR /app
-ENV CI=true
-RUN npm install -g pnpm@9
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# Copy application code (needed for Vite plugins that run artisan)
 COPY . .
+
+# Build Node dependencies & assets
+RUN pnpm install --frozen-lockfile
 RUN pnpm run build
 
 FROM base_image
 WORKDIR /app
 
-# Copy dependencies
-COPY --from=vendor /app/vendor/ /app/vendor/
-COPY --from=frontend /app/public/build/ /app/public/build/
+# Copy dependencies and compiled assets
+COPY --from=builder /app/vendor/ /app/vendor/
+COPY --from=builder /app/public/build/ /app/public/build/
 
 # Copy application code
 COPY . .
