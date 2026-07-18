@@ -6,7 +6,7 @@ FROM ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-base:latest AS base_image
 FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 FROM node:24-alpine AS frontend
 WORKDIR /app
@@ -32,3 +32,5 @@ RUN chown -R www-data:www-data /app \
 
 # Remove local .env if it exists
 RUN rm -f .env
+
+RUN php artisan package:discover --ansi
