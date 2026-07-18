@@ -11,9 +11,9 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 FROM node:24-alpine AS frontend
 WORKDIR /app
 ENV CI=true
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm config set ignore-scripts false && pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
