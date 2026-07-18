@@ -26,7 +26,7 @@ services:
 
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.${STACK_NAME}_app.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}_app.rule=Host(`identity.${DOMAIN}`)"
         - "traefik.http.routers.${STACK_NAME}_app.entrypoints=websecure"
         - "traefik.http.routers.${STACK_NAME}_app.tls.certresolver=cloudflare"
         - "traefik.http.services.${STACK_NAME}_app.loadbalancer.server.port=80"
