@@ -34,7 +34,4 @@ COPY . .
 RUN chown -R www-data:www-data /app \
     && chmod -R 775 /app/storage /app/bootstrap/cache
 
-# Remove local .env if it exists
-RUN rm -f .env
-
 RUN php artisan package:discover --ansi
