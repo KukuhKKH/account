@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  app:
+    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-base:latest
+    build:
+      context: ../..
+      dockerfile: .github/base/Dockerfile
+      platforms: [ "linux/amd64" ]

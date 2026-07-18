@@ -1,0 +1,84 @@
+name: Build & Push Images
+
+on:
+  push:
+    branches:
+      - real
+
+env:
+  IMAGE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE }}
+  STAGE: ${{ github.ref_name }}
+  HUB: ${{ vars.HUB }}
+  STACK_NAME: ${{ vars.STACK_NAME }}
+  DOMAIN: ${{ vars.DOMAIN }}
+  SERVER_NAME: ${{ vars.SERVER_NAME }}
+
+jobs:
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Short SHA
+        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Local Registry
+        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login registry.banglipai.web.id -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
+
+      - name: Build and Push Prebuild Image
+        run: |
+          # Build environment base
+          docker compose -f .github/base/docker-compose.yml build
+          docker compose -f .github/base/docker-compose.yml push
+
+      - name: Inject Configuration Files
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "$ENV_FILE" > .env
+          sed -i '/^\.env$/d' .dockerignore || true
+
+      - name: Load Helper Script
+        run: |
+          curl -fsSL "${{ secrets.CI_HELPER_SCRIPT }}" > /tmp/helper.sh
+
+      - name: Build and Push App Images
+        run: |
+          source /tmp/helper.sh
+          setup_image .github/build/docker-compose.yml ${IMAGE_TAG}
+
+  deploy:
+    name: Deploy to Swarm
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Short SHA
+        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Local Registry
+        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login registry.banglipai.web.id -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
+
+      - name: Setup SSH for Deployment
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SERVER_KEY }}
+
+      - name: Add Swarm Manager to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          HOST=$(echo ${{ env.SERVER_NAME }} | rev | cut -d'@' -f1 | rev)
+          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+
+      - name: Load Helper Script
+        run: |
+          curl -fsSL "${{ secrets.CI_HELPER_SCRIPT }}" > /tmp/helper.sh
+
+      - name: Deploy to Docker Swarm
+        run: |
+          source /tmp/helper.sh
+          deploy_image "${{ env.SERVER_NAME }}" "HUB STACK_NAME IMAGE_NAMESPACE DOMAIN IMAGE_TAG" "${STACK_NAME}" ".github/deploy/docker-compose.yml"
