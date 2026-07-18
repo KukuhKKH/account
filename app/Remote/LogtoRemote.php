@@ -353,35 +353,17 @@ class LogtoRemote
         $token = $this->getM2mToken();
 
         try {
-            $userResponse = $this->client()
-                ->withToken($token)
-                ->get("/api/users/{$userId}");
-
-            $userResponse->throw();
-            $userData = $userResponse->json();
-
-            $username = $userData['username'] ?? $userData['primaryEmail'] ?? null;
-
-            if (!$username) {
-                throw new Exception('User tidak memiliki username atau email untuk verifikasi.');
-            }
-
             $response = $this->client()
-                ->asForm()
-                ->post('/oidc/token', [
-                    'client_id'     => $this->appId,
-                    'client_secret' => $this->appSecret,
-                    'grant_type'    => 'password',
-                    'username'      => $username,
-                    'password'      => $password,
-                    'scope'         => 'openid profile email',
+                ->withToken($token)
+                ->post("/api/users/{$userId}/password/verify", [
+                    'password' => $password,
                 ]);
 
             if ($response->successful()) {
                 return true;
             }
 
-            if ($response->status() === 401) {
+            if (in_array($response->status(), [400, 401, 403, 404, 422])) {
                 throw new Exception('Password saat ini tidak valid.');
             }
 
@@ -389,7 +371,7 @@ class LogtoRemote
             return true;
 
         } catch (RequestException $e) {
-            if ($e->response?->status() === 401) {
+            if (in_array($e->response?->status(), [400, 401, 403, 404, 422])) {
                 throw new Exception('Password saat ini tidak valid.');
             }
 

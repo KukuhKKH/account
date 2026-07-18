@@ -15,11 +15,11 @@
         :placeholder="placeholder"
         :disabled="disabled"
         :class="[
-          'w-full rounded-lg border px-4 py-2.5 pr-20 transition-all duration-200 focus:outline-none',
+          'w-full rounded-lg border px-4 py-2.5 pr-20 transition-all duration-200 focus:outline-none dark:text-white',
           {
             'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 dark:border-red-600 dark:bg-red-900/10': showError,
             'border-green-300 bg-green-50/50 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 dark:border-green-600 dark:bg-green-900/10': showSuccess,
-            'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white': !showError && !showSuccess,
+            'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800': !showError && !showSuccess,
             'bg-gray-50 cursor-not-allowed dark:bg-gray-700': disabled
           }
         ]"
