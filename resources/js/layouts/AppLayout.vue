@@ -25,7 +25,7 @@
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
               <Zap class="h-5 w-5 text-white" />
             </div>
-            <span class="text-lg">Account</span>
+            <span class="text-lg">Identity</span>
           </Link>
         </div>
 
