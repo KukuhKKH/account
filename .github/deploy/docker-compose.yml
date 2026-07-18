@@ -14,8 +14,6 @@ services:
         parallelism: 1
         delay: 0s
         order: start-first
-      placement:
-        constraints: [ node.role == manager ]
 
       resources:
         limits:
