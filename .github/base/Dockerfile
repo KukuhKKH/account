@@ -7,8 +7,8 @@ RUN apk add --no-cache \
     && docker-php-ext-install pdo pdo_pgsql opcache \
     && rm -rf /var/cache/apk/*
 
-COPY nginx.conf /etc/nginx/http.d/default.conf
-COPY supervisord.conf /etc/supervisord.conf
+COPY .github/base/nginx.conf /etc/nginx/http.d/default.conf
+COPY .github/base/supervisord.conf /etc/supervisord.conf
 
 WORKDIR /app
 
