@@ -13,7 +13,7 @@ WORKDIR /app
 ENV CI=true
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm config set ignore-scripts false && pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
