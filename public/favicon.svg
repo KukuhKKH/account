@@ -1,7 +1,0 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background with rounded corners -->
-  <rect width="200" height="200" fill="#2563EB" rx="40"/>
-
-  <!-- Lightning bolt icon - white -->
-  <path d="M100 25 L145 95 L115 95 L135 175 L65 105 L95 105 Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-</svg>

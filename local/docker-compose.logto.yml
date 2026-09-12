@@ -1,0 +1,55 @@
+services:
+  logto-db:
+    image: postgres:16-alpine
+    container_name: identity-local-logto-db
+    environment:
+      - POSTGRES_USER=logto
+      - POSTGRES_PASSWORD=logto_password
+      - POSTGRES_DB=logto
+    volumes:
+      - logto-db-data:/var/lib/postgresql/data
+    networks:
+      - identity-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logto -d logto"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  logto-init:
+    image: ghcr.io/logto-io/logto:1.40
+    container_name: identity-local-logto-init
+    entrypoint: ["npm", "run", "cli", "db", "seed", "--", "--swe"]
+    environment:
+      - DB_URL=postgresql://logto:logto_password@logto-db:5432/logto
+    networks:
+      - identity-net
+    depends_on:
+      logto-db:
+        condition: service_healthy
+
+  logto:
+    image: ghcr.io/logto-io/logto:1.40
+    container_name: identity-local-logto
+    depends_on:
+      logto-init:
+        condition: service_completed_successfully
+    environment:
+      - DB_URL=postgresql://logto:logto_password@logto-db:5432/logto
+      - ENDPOINT=http://localhost:3001
+      - ADMIN_ENDPOINT=http://localhost:3002
+    ports:
+      - "3001:3001"
+      - "3002:3002"
+    networks:
+      - identity-net
+    restart: unless-stopped
+
+volumes:
+  logto-db-data:
+
+networks:
+  identity-net:
+    name: identity-local-net
+    driver: bridge

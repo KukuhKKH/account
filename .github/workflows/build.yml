@@ -35,10 +35,14 @@ jobs:
 
       - name: Inject Configuration Files
         env:
-          ENV_FILE: ${{ secrets.ENV_FILE }}
+          ENV_BACKEND: ${{ secrets.ENV_BACKEND }}
+          ENV_FRONTEND: ${{ secrets.ENV_FRONTEND }}
         run: |
-          echo "$ENV_FILE" > .env
-          sed -i '/^\.env$/d' .dockerignore || true
+          mkdir -p backend
+          echo "$ENV_BACKEND" > backend/.env
+
+          mkdir -p frontend
+          echo "$ENV_FRONTEND" > frontend/.env
 
       - name: Load Helper Script
         run: |
@@ -59,9 +63,6 @@ jobs:
 
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Login to Local Registry
-        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login registry.banglipai.web.id -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
 
       - name: Setup SSH for Deployment
         uses: webfactory/ssh-agent@v0.9.0

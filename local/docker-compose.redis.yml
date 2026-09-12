@@ -1,0 +1,20 @@
+services:
+  redis:
+    image: redis:7.4
+    container_name: identity-local-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - identity-net
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+
+networks:
+  identity-net:
+    name: identity-local-net
+    driver: bridge

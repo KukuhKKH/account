@@ -1,11 +1,10 @@
 version: '3.8'
 
 services:
-  app:
-    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-app:${IMAGE_TAG:-latest}
+  backend:
+    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-backend:${IMAGE_TAG:-latest}
     networks:
       - traefik-public
-
     deploy:
       replicas: 1
       restart_policy:
@@ -14,23 +13,31 @@ services:
         parallelism: 1
         delay: 0s
         order: start-first
-
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 512M
-        reservations:
-          memory: 256M
-
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.${STACK_NAME}_app.rule=Host(`identity.${DOMAIN}`)"
-        - "traefik.http.routers.${STACK_NAME}_app.entrypoints=websecure"
-        - "traefik.http.routers.${STACK_NAME}_app.tls.certresolver=cloudflare"
-        - "traefik.http.services.${STACK_NAME}_app.loadbalancer.server.port=80"
+        - "traefik.http.routers.${STACK_NAME}_api.rule=Host(`api-identity.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}_api.entrypoints=websecure"
+        - "traefik.http.routers.${STACK_NAME}_api.tls.certresolver=cloudflare"
+        - "traefik.http.services.${STACK_NAME}_api.loadbalancer.server.port=9501"
 
-    environment:
-      - SERVER_NAME=${DOMAIN}
+  frontend:
+    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-frontend:${IMAGE_TAG:-latest}
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 0s
+        order: start-first
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.${STACK_NAME}_web.rule=Host(`identity.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}_web.entrypoints=websecure"
+        - "traefik.http.routers.${STACK_NAME}_web.tls.certresolver=cloudflare"
+        - "traefik.http.services.${STACK_NAME}_web.loadbalancer.server.port=80"
 
 networks:
   traefik-public:

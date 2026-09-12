@@ -1,13 +1,24 @@
-version: '3.8'
-
 services:
-  app:
-    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-app:${IMAGE_TAG:-latest}
+  backend:
+    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-backend:${IMAGE_TAG:-latest}
     build:
-      context: ../..
-      dockerfile: .github/build/Dockerfile
+      context: ../../
+      dockerfile: .github/build/backend/Dockerfile
       args:
-        HUB: ${HUB}
-        IMAGE_NAMESPACE: ${IMAGE_NAMESPACE}
-        STACK_NAME: ${STACK_NAME}
-      platforms: [ "linux/amd64" ]
+        - HUB=${HUB}
+        - STACK_NAME=${STACK_NAME}
+        - IMAGE_NAMESPACE=${IMAGE_NAMESPACE}
+      cache_from:
+        - ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-backend:latest
+
+  frontend:
+    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: .github/build/frontend/Dockerfile
+      args:
+        - HUB=${HUB}
+        - STACK_NAME=${STACK_NAME}
+        - IMAGE_NAMESPACE=${IMAGE_NAMESPACE}
+      cache_from:
+        - ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-frontend:latest

@@ -1,9 +1,16 @@
-version: '3.8'
-
 services:
-  app:
-    image: ${HUB}/${STACK_NAME}/${IMAGE_NAMESPACE}-base:latest
+  backend:
+    image: ${HUB}/${STACK_NAME}/base-${IMAGE_NAMESPACE}-backend:latest
     build:
-      context: ../..
-      dockerfile: .github/base/Dockerfile
-      platforms: [ "linux/amd64" ]
+      context: backend
+      dockerfile: Dockerfile
+      cache_from:
+        - ${HUB}/${STACK_NAME}/base-${IMAGE_NAMESPACE}-backend:latest
+
+  frontend:
+    image: ${HUB}/${STACK_NAME}/base-${IMAGE_NAMESPACE}-frontend:latest
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      cache_from:
+        - ${HUB}/${STACK_NAME}/base-${IMAGE_NAMESPACE}-frontend:latest
