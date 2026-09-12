@@ -1,4 +1,4 @@
-import Aura from '@primeuix/themes/aura'
+import Aura from '@primevue/themes/aura'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config

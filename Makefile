@@ -6,8 +6,8 @@ COMPOSE_APP   := local/docker-compose.yml
 COMPOSE_LOGTO := local/docker-compose.logto.yml
 COMPOSE_REDIS := local/docker-compose.redis.yml
 
-DOCKER_PHP    := docker run --rm -v $(CURDIR)/backend:/app -w /app --network identity-local-net -it hyperf/hyperf:8.3-alpine-v3.19-swoole-v6
-DOCKER_COMP   := docker run --rm -v $(CURDIR)/backend:/app -w /app --user $(shell id -u):$(shell id -g) composer:2 composer
+DOCKER_PHP    := docker run --rm -v $(CURDIR)/backend:/app -w /app --network identity-local-net -it hyperf/hyperf:8.4-alpine-v3.21-swoole-v6
+DOCKER_COMP   := docker run --rm -v $(CURDIR)/backend:/app -w /app --user $(shell id -u):$(shell id -g) hyperf/hyperf:8.4-alpine-v3.21-swoole-v6 composer
 
 BOLD  := \033[1m
 RESET := \033[0m
@@ -119,13 +119,13 @@ route-list: ## Melihat daftar routes backend
 ## ── Composer Commands ───────────────────────────────────────────────────────
 
 composer: ## Menjalankan composer (contoh: make composer CMD="require hypervel/redis")
-	$(DOCKER_COMP) $(CMD) --ignore-platform-reqs
+	$(DOCKER_COMP) $(CMD)
 
 composer-install: ## Install dependensi composer
-	$(DOCKER_COMP) install --ignore-platform-reqs
+	$(DOCKER_COMP) install
 
 composer-update: ## Update dependensi composer
-	$(DOCKER_COMP) update --ignore-platform-reqs
+	$(DOCKER_COMP) update
 
 composer-dump: ## Dump autoload composer
 	$(DOCKER_COMP) dump-autoload

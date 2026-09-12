@@ -16,7 +16,7 @@ const count = ref(0)
           </div>
           <div>
             <h1 class="text-xl font-bold tracking-tight text-white">{{ title }}</h1>
-            <p class="text-xs text-slate-400">Nuxt 4 + PrimeVue v5 + Tailwind CSS v4</p>
+            <p class="text-xs text-slate-400">Nuxt 4 + PrimeVue v4 + Tailwind CSS v4</p>
           </div>
         </div>
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -29,7 +29,7 @@ const count = ref(0)
         <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between">
           <div>
             <div class="text-sm font-semibold text-slate-200">Backend Engine</div>
-            <div class="text-xs text-slate-400">Hypervel (PHP 8.3 Coroutine / Swoole)</div>
+            <div class="text-xs text-slate-400">Hypervel (PHP 8.4 Coroutine / Swoole)</div>
           </div>
           <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-700 text-sky-300">Port 9501</span>
         </div>
@@ -37,7 +37,7 @@ const count = ref(0)
         <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between">
           <div>
             <div class="text-sm font-semibold text-slate-200">Frontend Engine</div>
-            <div class="text-xs text-slate-400">Nuxt 4.x + PrimeVue v5 (Aura Theme)</div>
+            <div class="text-xs text-slate-400">Nuxt 4.x + PrimeVue v4 (Aura Theme)</div>
           </div>
           <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-700 text-indigo-300">Port 3000</span>
         </div>
