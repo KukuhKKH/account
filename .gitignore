@@ -26,3 +26,10 @@ frontend/.env.*
 *.swo
 .DS_Store
 Thumbs.db
+
+# AI Agents & Customizations
+AGENTS.md
+CLAUDE.md
+agent.md
+.agents/
+.agent/

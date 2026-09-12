@@ -30,9 +30,26 @@ return (new Config())
             'import_constants' => true,
             'import_functions' => null,
         ],
+        'binary_operator_spaces' => [
+            'default'   => 'single_space',
+            'operators' => [
+                '='  => 'align_single_space_minimal',
+                '=>' => 'align_single_space_minimal',
+            ],
+        ],
         'blank_line_before_statement' => [
             'statements' => [
+                'break',
+                'continue',
                 'declare',
+                'return',
+                'throw',
+                'try',
+                'if',
+                'while',
+                'for',
+                'foreach',
+                'switch',
             ],
         ],
         'general_phpdoc_annotation_remove' => [
@@ -53,8 +70,8 @@ return (new Config())
         ],
         'yoda_style' => [
             'always_move_variable' => false,
-            'equal' => false,
-            'identical' => false,
+            'equal'                => false,
+            'identical'            => false,
         ],
         'phpdoc_align' => [
             'align' => 'left',
@@ -65,7 +82,14 @@ return (new Config())
         'constant_case' => [
             'case' => 'lower',
         ],
-        'class_attributes_separation' => true,
+        'class_attributes_separation' => [
+            'elements' => [
+                'const'        => 'one',
+                'method'       => 'one',
+                'property'     => 'one',
+                'trait_import' => 'one',
+            ],
+        ],
         'combine_consecutive_unsets' => true,
         'declare_strict_types' => true,
         'linebreak_after_opening_tag' => true,

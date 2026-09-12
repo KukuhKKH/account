@@ -135,10 +135,23 @@ composer-dump: ## Dump autoload composer
 frontend-dev: ## Menjalankan frontend dev server lokal
 	cd frontend && pnpm dev
 
+frontend-typecheck: ## Menjalankan typecheck TypeScript Nuxt
+	cd frontend && pnpm typecheck
+
+frontend-generate: ## Generate / Build static frontend Nuxt
+	cd frontend && pnpm generate
+
 frontend-build: ## Build frontend Nuxt static SPA
 	cd frontend && pnpm generate
 
 ## ── Testing & Quality ───────────────────────────────────────────────────────
 
-test: ## Menjalankan test suite backend
+test-backend: ## Menjalankan test suite backend
 	@$(MAKE) artisan CMD="test"
+
+test-frontend: ## Menjalankan typecheck dan build/generate frontend
+	cd frontend && pnpm typecheck && pnpm generate
+
+test: ## Menjalankan seluruh verifikasi kualitas (Backend tests + Frontend typecheck & generate)
+	@$(MAKE) test-backend
+	@$(MAKE) test-frontend
