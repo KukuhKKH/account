@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1006e0c4e14e353588c5dbff326e2008",
+    "content-hash": "836b4a3a696c5d54ea834ca79b5469c7",
     "packages": [
         {
             "name": "brick/math",
@@ -3387,6 +3387,79 @@
             "time": "2025-10-30T01:44:44+00:00"
         },
         {
+            "name": "hyperf/redis",
+            "version": "v3.1.69",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/redis.git",
+                "reference": "8c1945f6bdaf4b1ec9fdedd1f10e512df77e6c6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/redis/zipball/8c1945f6bdaf4b1ec9fdedd1f10e512df77e6c6c",
+                "reference": "8c1945f6bdaf4b1ec9fdedd1f10e512df77e6c6c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-redis": "^5.0 || ^6.0",
+                "hyperf/collection": "~3.1.0",
+                "hyperf/context": "~3.1.0",
+                "hyperf/contract": "~3.1.0",
+                "hyperf/pool": "~3.1.0",
+                "hyperf/support": "~3.1.0",
+                "hyperf/tappable": "~3.1.0",
+                "php": ">=8.1",
+                "psr/container": "^1.0 || ^2.0"
+            },
+            "suggest": {
+                "ext-redis": "Required to use sentinel mode (>=5.2).",
+                "hyperf/di": "Create the RedisPool via dependency injection."
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Hyperf\\Redis\\ConfigProvider"
+                },
+                "branch-alias": {
+                    "dev-master": "3.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hyperf\\Redis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A redis component for hyperf.",
+            "homepage": "https://hyperf.io",
+            "keywords": [
+                "hyperf",
+                "php",
+                "pool",
+                "redis"
+            ],
+            "support": {
+                "docs": "https://hyperf.wiki",
+                "issues": "https://github.com/hyperf/hyperf/issues",
+                "pull-request": "https://github.com/hyperf/hyperf/pulls",
+                "source": "https://github.com/hyperf/hyperf"
+            },
+            "funding": [
+                {
+                    "url": "https://hyperf.wiki/#/zh-cn/donate",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://opencollective.com/hyperf",
+                    "type": "open_collective"
+                }
+            ],
+            "time": "2026-04-21T09:55:49+00:00"
+        },
+        {
             "name": "hyperf/resource",
             "version": "v3.1.65",
             "source": {
@@ -5945,6 +6018,63 @@
                 "source": "https://github.com/hypervel/components"
             },
             "time": "2026-07-02T06:43:14+00:00"
+        },
+        {
+            "name": "hypervel/redis",
+            "version": "v0.3.26",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hypervel/redis.git",
+                "reference": "ee90352455840088a362630767e04c8a0283e305"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hypervel/redis/zipball/ee90352455840088a362630767e04c8a0283e305",
+                "reference": "ee90352455840088a362630767e04c8a0283e305",
+                "shasum": ""
+            },
+            "require": {
+                "hyperf/redis": "~3.1.0",
+                "hypervel/support": "^0.3",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Hypervel\\Redis\\ConfigProvider"
+                },
+                "branch-alias": {
+                    "dev-main": "0.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hypervel\\Redis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Albert Chen",
+                    "email": "albert@hypervel.org"
+                }
+            ],
+            "description": "The redis package for Hypervel.",
+            "keywords": [
+                "hyperf",
+                "hypervel",
+                "php",
+                "redis",
+                "swoole"
+            ],
+            "support": {
+                "issues": "https://github.com/hypervel/components/issues",
+                "source": "https://github.com/hypervel/components"
+            },
+            "time": "2026-07-21T09:46:33+00:00"
         },
         {
             "name": "hypervel/router",

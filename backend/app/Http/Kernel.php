@@ -29,11 +29,10 @@ class Kernel extends HttpKernel
      */
     protected array $middlewareGroups = [
         'web' => [
-            // \Hypervel\Router\Middleware\SubstituteBindings::class,
-            // \Hypervel\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            // \Hypervel\Session\Middleware\StartSession::class,
-            // \Hypervel\View\Middleware\ShareErrorsFromSession::class,
-            // \App\Http\Middleware\VerifyCsrfToken::class,
+            \Hypervel\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Hypervel\Session\Middleware\StartSession::class,
+            \Hypervel\View\Middleware\ShareErrorsFromSession::class,
+            \Hypervel\Router\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [

@@ -20,9 +20,14 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        /* begin custom domain list */
+        /* end custom domain list */
+    ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '/https?:\/\/[^.]*\.' . preg_quote(env('APP_DOMAIN', 'localhost')) . '(:\d+)?/',
+    ],
 
     'allowed_headers' => ['*'],
 
@@ -30,5 +35,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 ];

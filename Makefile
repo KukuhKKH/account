@@ -23,8 +23,8 @@ help: ## Menampilkan daftar perintah yang tersedia
 up: ## Menjalankan Backend (9501) & Frontend (3000)
 	docker compose -f $(COMPOSE_APP) up -d
 	@echo ""
-	@echo "🚀 Backend (Hypervel): http://localhost:9501"
-	@echo "🚀 Frontend (Nuxt 4):  http://localhost:3000"
+	@echo "🚀 Backend (Hypervel): https://api-identity.home.test (Port: 9501)"
+	@echo "🚀 Frontend (Nuxt 4):  https://identity.home.test (Port: 3000)"
 
 down: ## Menghentikan service App
 	docker compose -f $(COMPOSE_APP) down
@@ -49,8 +49,8 @@ ps: ## Melihat status container App
 logto-up: ## Menjalankan Logto SSO Server (3001) & Admin Console (3002)
 	docker compose -f $(COMPOSE_LOGTO) up -d
 	@echo ""
-	@echo "🔐 Logto Core (Auth):  http://localhost:3001"
-	@echo "🛠️ Logto Admin Portal: http://localhost:3002"
+	@echo "🔐 Logto Core (Auth):  https://sso.home.test (Port: 3001)"
+	@echo "🛠️ Logto Admin Portal: https://console.home.test (Port: 3002)"
 
 logto-down: ## Menghentikan Logto server
 	docker compose -f $(COMPOSE_LOGTO) down
@@ -81,10 +81,10 @@ up-all: ## Menjalankan semua service (App + Redis + Logto)
 	docker compose -f $(COMPOSE_APP) up -d
 	@echo ""
 	@echo "✅ Semua service lokal berhasil dijalankan!"
-	@echo "🚀 Backend:      http://localhost:9501"
-	@echo "🚀 Frontend:     http://localhost:3000"
-	@echo "🔐 Logto Core:   http://localhost:3001"
-	@echo "🛠️ Logto Admin:  http://localhost:3002"
+	@echo "🚀 Backend:      https://api-identity.home.test"
+	@echo "🚀 Frontend:     https://identity.home.test"
+	@echo "🔐 Logto Core:   https://sso.home.test"
+	@echo "🛠️ Logto Admin:  https://console.home.test"
 	@echo "⚡ Redis:        localhost:6379"
 
 down-all: ## Menghentikan semua service (App + Redis + Logto)

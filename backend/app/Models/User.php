@@ -103,7 +103,7 @@ class User extends Authenticatable
     protected array $casts = [
         'id'                => 'integer',
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
+        'password'          => 'string',
         'last_login_at'     => 'datetime',
         'custom_data'       => 'array',
         'created_at'        => 'datetime',

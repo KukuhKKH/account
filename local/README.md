@@ -95,10 +95,10 @@ make frontend-build
 
 ## 🌐 5. Port & URL Akses
 
-| Service | Host Port | URL | File Compose |
-|---|---|---|---|
-| **Backend (Hypervel)** | `9501` | `http://localhost:9501` | `local/docker-compose.yml` |
-| **Frontend (Nuxt 4 SPA)** | `3000` | `http://localhost:3000` | `local/docker-compose.yml` |
-| **Redis Server** | `6379` | `localhost:6379` | `local/docker-compose.redis.yml` |
-| **Logto Core (OIDC / SSO)** | `3001` | `http://localhost:3001` | `local/docker-compose.logto.yml` |
-| **Logto Admin Console** | `3002` | `http://localhost:3002` | `local/docker-compose.logto.yml` |
+| Service                     | Host Port | URL (Traefik SSL)                | Direct Port             | File Compose                     |
+| --------------------------- | --------- | -------------------------------- | ----------------------- | -------------------------------- |
+| **Backend (Hypervel)**      | `9501`    | `https://api-identity.home.test` | `http://localhost:9501` | `local/docker-compose.yml`       |
+| **Frontend (Nuxt 4 SPA)**   | `3000`    | `https://identity.home.test`     | `http://localhost:3000` | `local/docker-compose.yml`       |
+| **Redis Server**            | `6379`    | -                                | `localhost:6379`        | `local/docker-compose.redis.yml` |
+| **Logto Core (OIDC / SSO)** | `3001`    | `https://sso.home.test`          | `http://localhost:3001` | `local/docker-compose.logto.yml` |
+| **Logto Admin Console**     | `3002`    | `https://console.home.test`      | `http://localhost:3002` | `local/docker-compose.logto.yml` |
