@@ -1,0 +1,53 @@
+[
+  {
+    "id": "overview",
+    "title": "Ringkasan (Overview)",
+    "path": "/dashboard",
+    "icon": "LayoutDashboard",
+    "permission": "all"
+  },
+  {
+    "id": "users",
+    "title": "Manajemen Pengguna",
+    "path": "/dashboard/users",
+    "icon": "Users",
+    "permission": "canManageUsers",
+    "badge": {
+      "text": "RBAC",
+      "variant": "rbac"
+    }
+  },
+  {
+    "id": "cluster",
+    "title": "Klaster & Subnet",
+    "path": "/dashboard/cluster",
+    "icon": "Server",
+    "permission": "isSuperadmin",
+    "badge": {
+      "text": "Root",
+      "variant": "root"
+    }
+  },
+  {
+    "id": "audit",
+    "title": "Log Aktivitas & Audit",
+    "path": "/dashboard/audit",
+    "icon": "FileText",
+    "permission": "all"
+  },
+  {
+    "id": "ai-ops",
+    "title": "Karina AI Ops Center",
+    "path": "/dashboard/ai-ops",
+    "icon": "Bot",
+    "permission": "isSuperadmin",
+    "iconClass": "text-rose-400"
+  },
+  {
+    "id": "profile",
+    "title": "Profil & Kunci Keamanan",
+    "path": "/dashboard/profile",
+    "icon": "UserCheck",
+    "permission": "all"
+  }
+]

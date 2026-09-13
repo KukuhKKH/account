@@ -13,6 +13,13 @@ export default defineNuxtConfig({
     }
   },
 
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
+
   app: {
     head: {
       title: 'BangLipai Identity - Central SSO & Access Management Engine',

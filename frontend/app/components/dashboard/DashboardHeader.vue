@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/theme'
+import UserAvatar from '~/components/UserAvatar.vue'
 import {
   Sun,
   Moon,
@@ -54,9 +55,14 @@ defineProps<{
 
       <!-- User avatar button -->
       <div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
-        <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-          {{ authStore.currentUser?.name.charAt(0) || 'U' }}
-        </div>
+        <UserAvatar
+          :name="authStore.currentUser?.name"
+          :email="authStore.currentUser?.email"
+          :avatar="authStore.currentUser?.avatarUrl"
+          :role="authStore.currentUser?.role"
+          size="sm"
+          class="shadow-xs"
+        />
         <div class="hidden sm:block text-left text-xs">
           <p class="font-bold text-slate-900 dark:text-white leading-tight truncate max-w-[120px]">
             {{ authStore.currentUser?.name }}

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import UserAvatar from '~/components/UserAvatar.vue'
 import type { UserRoleType } from '~/types/auth'
 import {
   ShieldCheck,
@@ -99,9 +100,14 @@ function submitLogin() {
       <!-- Current Active Session Card (if user is already logged in) -->
       <div v-if="authStore.isLoggedIn" class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
-            {{ authStore.currentUser?.name.charAt(0) || 'U' }}
-          </div>
+          <UserAvatar
+            :name="authStore.currentUser?.name"
+            :email="authStore.currentUser?.email"
+            :avatar="authStore.currentUser?.avatarUrl"
+            :role="authStore.currentUser?.role"
+            size="sm"
+            class="shadow-sm"
+          />
           <div class="min-w-0">
             <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
               {{ authStore.currentUser?.name }}

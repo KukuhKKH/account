@@ -2,6 +2,7 @@
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/theme'
 import { useClusterStore } from '~/stores/cluster'
+import UserAvatar from '~/components/UserAvatar.vue'
 import {
   ShieldCheck,
   Zap,
@@ -109,9 +110,14 @@ function closeDropdowns() {
             @click="userDropdownOpen = !userDropdownOpen"
             class="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/40 text-xs font-medium text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 transition-all"
           >
-            <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-              {{ authStore.currentUser?.name.charAt(0) || 'U' }}
-            </div>
+            <UserAvatar
+              :name="authStore.currentUser?.name"
+              :email="authStore.currentUser?.email"
+              :avatar="authStore.currentUser?.avatarUrl"
+              :role="authStore.currentUser?.role"
+              size="xs"
+              class="shadow-xs"
+            />
             <div class="text-left hidden sm:block">
               <p class="font-semibold text-xs leading-none">{{ authStore.currentUser?.name }}</p>
               <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight font-mono mt-0.5">
