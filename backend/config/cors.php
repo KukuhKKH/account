@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'auth/*', 'me', '*'],
 
     'allowed_methods' => ['*'],
 
@@ -26,7 +26,7 @@ return [
     ],
 
     'allowed_origins_patterns' => [
-        '/https?:\/\/[^.]*\.' . preg_quote(env('APP_DOMAIN', 'localhost')) . '(:\d+)?/',
+        '/^https?:\/\/([a-z0-9-]+\.)*' . preg_quote((string) env('APP_DOMAIN', 'home.test'), '/') . '(:\d+)?$/i',
     ],
 
     'allowed_headers' => ['*'],
@@ -37,3 +37,4 @@ return [
 
     'supports_credentials' => true,
 ];
+

@@ -8,6 +8,7 @@ COMPOSE_REDIS := local/docker-compose.redis.yml
 
 DOCKER_PHP    := docker run --rm -v $(CURDIR)/backend:/app -w /app --network identity-local-net -it hyperf/hyperf:8.4-alpine-v3.21-swoole-v6
 DOCKER_COMP   := docker run --rm -v $(CURDIR)/backend:/app -w /app --user $(shell id -u):$(shell id -g) hyperf/hyperf:8.4-alpine-v3.21-swoole-v6 composer
+DOCKER_PNPM   := docker run --rm -v $(CURDIR)/frontend:/app -w /app --user $(shell id -u):$(shell id -g) node:22-slim npx pnpm
 
 BOLD  := \033[1m
 RESET := \033[0m
@@ -133,24 +134,25 @@ composer-dump: ## Dump autoload composer
 ## ── Frontend Commands ───────────────────────────────────────────────────────
 
 frontend-dev: ## Menjalankan frontend dev server lokal
-	cd frontend && pnpm dev
+	$(DOCKER_PNPM) dev
 
 frontend-typecheck: ## Menjalankan typecheck TypeScript Nuxt
-	cd frontend && pnpm typecheck
+	$(DOCKER_PNPM) typecheck
 
 frontend-generate: ## Generate / Build static frontend Nuxt
-	cd frontend && pnpm generate
+	$(DOCKER_PNPM) generate
 
 frontend-build: ## Build frontend Nuxt static SPA
-	cd frontend && pnpm generate
+	$(DOCKER_PNPM) generate
 
 ## ── Testing & Quality ───────────────────────────────────────────────────────
 
 test-backend: ## Menjalankan test suite backend
-	@$(MAKE) artisan CMD="test"
+	$(DOCKER_PHP) ./vendor/bin/co-phpunit
 
 test-frontend: ## Menjalankan typecheck dan build/generate frontend
-	cd frontend && pnpm typecheck && pnpm generate
+	$(DOCKER_PNPM) typecheck
+	$(DOCKER_PNPM) generate
 
 test: ## Menjalankan seluruh verifikasi kualitas (Backend tests + Frontend typecheck & generate)
 	@$(MAKE) test-backend

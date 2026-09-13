@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'defaults' => [
-        'guard' => 'jwt',
+        'guard'    => 'session',
         'provider' => 'users',
     ],
     'guards' => [

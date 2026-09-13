@@ -150,7 +150,7 @@ export const useClusterStore = defineStore('cluster', () => {
     {
       id: 'karina',
       name: 'AI Agent (Karina)',
-      type: 'LXC Container',
+      type: 'Virtual Machine (KVM)',
       zone: 'Zone-AI (Intelligence)',
       internalIp: '10.10.10.99',
       maskedIp: '10.10.10.***',

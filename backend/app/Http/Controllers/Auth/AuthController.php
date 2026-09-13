@@ -7,9 +7,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\AbstractController;
 use App\Http\Requests\Auth\AuthCallbackRequest;
 use App\Http\Requests\Auth\BackchannelLogoutRequest;
+use App\Models\User;
 use App\Services\Auth\LogtoAuthService;
 use Exception;
 use Hypervel\Http\Request;
+use Hypervel\Support\Facades\Auth;
 use Hypervel\Support\Facades\Log;
 use Hypervel\Support\Facades\Session;
 use Psr\Http\Message\ResponseInterface;
@@ -19,6 +21,28 @@ class AuthController extends AbstractController
     public function __construct(
         protected LogtoAuthService $authService,
     ) {
+    }
+
+    /**
+     * Get the authenticated user profile and session status.
+     */
+    public function me(Request $request): ResponseInterface
+    {
+        $user = Auth::guard('session')->user() ?? $request->user();
+
+        if ($user instanceof User) {
+            $user->loadMissing('roles');
+
+            return response()->json([
+                'authenticated' => true,
+                'user'          => $user->toArray(),
+            ]);
+        }
+
+        return response()->json([
+            'authenticated' => false,
+            'user'          => null,
+        ]);
     }
 
     /**

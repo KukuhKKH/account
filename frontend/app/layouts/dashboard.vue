@@ -7,9 +7,9 @@ import NodeDetailModal from '~/components/modals/NodeDetailModal.vue'
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 
-onMounted(() => {
-  authStore.initSession()
+onMounted(async () => {
   themeStore.initTheme()
+  await authStore.initSession(false)
 })
 </script>
 

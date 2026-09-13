@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Auth;
 
 use App\Data\Auth\BackchannelLogoutTokenData;
+use App\Models\User;
+use App\Models\UserRole;
+use Hypervel\Foundation\Testing\RefreshDatabase;
 use Hypervel\Support\Facades\Config;
 use Tests\TestCase;
 
@@ -14,6 +17,8 @@ use Tests\TestCase;
  */
 class LogtoAuthFeatureTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function testLoginRedirectsToLogtoAuthorizationUrl(): void
     {
         $appId = (string) Config::get('services.logto.app_id');
@@ -78,4 +83,75 @@ class LogtoAuthFeatureTest extends TestCase
         $response->assertStatus(200);
         $this->assertSame('no-store', $response->getHeaderLine('Cache-Control'));
     }
+
+    public function testMeReturnsUnauthenticatedWhenNoUserLoggedIn(): void
+    {
+        $response = $this->get('/me');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'authenticated' => false,
+            'user'          => null,
+        ]);
+
+        $responseAuthMe = $this->get('/auth/me');
+
+        $responseAuthMe->assertStatus(200);
+        $responseAuthMe->assertJson([
+            'authenticated' => false,
+            'user'          => null,
+        ]);
+    }
+
+    public function testMeReturnsAuthenticatedUserDataWhenLoggedIn(): void
+    {
+        $user = new User();
+
+        $user->name     = 'Kukuh KKH';
+        $user->email    = 'kukuh@banglipai.web.id';
+        $user->logto_id = 'logto_test_sub_123';
+        $user->password = bcrypt('secret123');
+        $user->save();
+
+        $userRole = new UserRole([
+            'role' => 'Superadmin',
+        ]);
+
+        $user->roles()->save($userRole);
+
+        $response = $this->actingAs($user, 'session')->get('/me');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'authenticated' => true,
+            'user'          => [
+                'id'    => $user->id,
+                'name'  => 'Kukuh KKH',
+                'email' => 'kukuh@banglipai.web.id',
+                'roles' => ['Superadmin'],
+            ],
+        ]);
+
+        $responseAuthMe = $this->actingAs($user, 'session')->get('/auth/me');
+
+        $responseAuthMe->assertStatus(200);
+        $responseAuthMe->assertJson([
+            'authenticated' => true,
+            'user'          => [
+                'id' => $user->id,
+            ],
+        ]);
+    }
+
+    public function testRootEndpointRedirectsToFrontendUrl(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(302);
+        $this->assertSame(
+            (string) Config::get('services.logto.frontend_url', 'https://identity.' . env('APP_DOMAIN', 'home.test')),
+            $response->getHeaderLine('Location')
+        );
+    }
 }
+
