@@ -15,7 +15,6 @@ use Tests\TestCase;
 
 /**
  * @internal
- * @coversNothing
  */
 class LogtoAuthServiceTest extends TestCase
 {

@@ -11,7 +11,6 @@ use Tests\TestCase;
 
 /**
  * @internal
- * @coversNothing
  */
 class LogtoDataTest extends TestCase
 {

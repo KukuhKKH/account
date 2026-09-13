@@ -13,7 +13,6 @@ use Tests\TestCase;
 
 /**
  * @internal
- * @coversNothing
  */
 class LogtoAuthFeatureTest extends TestCase
 {
