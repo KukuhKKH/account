@@ -40,17 +40,23 @@ const isCurrentlySuspended = computed(() => {
 
 // Proteksi keamanan: tidak bisa suspend diri sendiri
 const isSelf = computed(() => {
-  return props.user && props.currentUserId && String(props.user.id) === String(props.currentUserId)
+  return Boolean(props.user && props.currentUserId && String(props.user.id) === String(props.currentUserId))
 })
 
 // Proteksi keamanan: Superadmin tidak dapat disuspen
 const isTargetSuperadmin = computed(() => {
-  return props.user && props.user.role === 'Superadmin'
+  return props.user?.role === 'Superadmin'
+})
+
+// Proteksi keamanan: Admin hanya boleh mengelola Regular User
+const isTargetAdmin = computed(() => {
+  return props.user?.role === 'Admin Account'
 })
 
 const canToggle = computed(() => {
   if (isSelf.value) return false
   if (isTargetSuperadmin.value) return false
+  if (isTargetAdmin.value && !props.isSuperadmin) return false
   return true
 })
 
@@ -151,6 +157,17 @@ async function onConfirmToggle() {
         </div>
         <p class="text-[11px]">
           Akun dengan level Superadmin dilindungi oleh Kebijakan Keamanan Sistem dan tidak dapat ditangguhkan demi menjaga kelangsungan operasional cluster.
+        </p>
+      </div>
+
+      <!-- Admin Suspending Fellow Admin Alert -->
+      <div v-else-if="!isSuperadmin && isTargetAdmin" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 space-y-1">
+        <div class="font-bold flex items-center gap-1.5">
+          <ShieldAlert class="w-4 h-4 text-amber-500" />
+          <span>Pembatasan Hak Akses (RBAC)</span>
+        </div>
+        <p class="text-[11px]">
+          Hanya Superadmin yang berwenang menangguhkan atau mengaktifkan sesama akun Admin.
         </p>
       </div>
 

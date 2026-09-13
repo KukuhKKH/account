@@ -32,16 +32,21 @@ const isSubmitting = ref(false)
 const errorMessage = ref<string | null>(null)
 
 const isSelf = computed(() => {
-  return props.user && props.currentUserId && String(props.user.id) === String(props.currentUserId)
+  return Boolean(props.user && props.currentUserId && String(props.user.id) === String(props.currentUserId))
 })
 
 const isTargetSuperadmin = computed(() => {
-  return props.user && props.user.role === 'Superadmin'
+  return props.user?.role === 'Superadmin'
+})
+
+const isTargetAdmin = computed(() => {
+  return props.user?.role === 'Admin Account'
 })
 
 const canDelete = computed(() => {
   if (isSelf.value) return false
   if (isTargetSuperadmin.value && !props.isSuperadmin) return false
+  if (isTargetAdmin.value && !props.isSuperadmin) return false
   return true
 })
 
@@ -116,6 +121,17 @@ async function onConfirmDelete() {
         </div>
         <p class="text-[11px]">
           Anda tidak dapat menghapus akun Anda sendiri dari portal. Tindakan ini dicegah oleh Kebijakan Keamanan Sistem.
+        </p>
+      </div>
+
+      <!-- Elevated Account Deletion Alert for Non-Superadmin -->
+      <div v-else-if="!isSuperadmin && (isTargetSuperadmin || isTargetAdmin)" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 space-y-1">
+        <div class="font-bold flex items-center gap-1.5">
+          <ShieldAlert class="w-4 h-4 text-amber-500" />
+          <span>Pembatasan Hak Akses (RBAC)</span>
+        </div>
+        <p class="text-[11px]">
+          Akun Admin tidak memiliki wewenang untuk menghapus akun dengan hak akses setara atau lebih tinggi.
         </p>
       </div>
 

@@ -432,7 +432,7 @@ async function handleToggleStatus(target: UserRecord) {
 
                   <!-- Toggle Suspend Button -->
                   <button
-                    v-if="data.role !== 'Superadmin'"
+                    v-if="data.role !== 'Superadmin' && (isSuperadmin || data.role === 'User') && (!currentUser || String(data.id) !== String(currentUser.id))"
                     type="button"
                     @click="openSuspendDialog(data)"
                     class="p-1.5 rounded-xl border transition-all cursor-pointer disabled:opacity-50"
