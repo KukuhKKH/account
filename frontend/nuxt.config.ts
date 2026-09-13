@@ -7,6 +7,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://api-identity.home.test'
+    }
+  },
+
   app: {
     head: {
       title: 'BangLipai Identity - Central SSO & Access Management Engine',
@@ -34,7 +40,16 @@ export default defineNuxtConfig({
   vite: {
     plugins: [
       tailwindcss()
-    ]
+    ],
+    server: {
+      allowedHosts: [
+        'identity.home.test',
+        'localhost',
+        '127.0.0.1',
+        '.home.test',
+        '.banglipai.web.id'
+      ]
+    }
   },
 
   primevue: {

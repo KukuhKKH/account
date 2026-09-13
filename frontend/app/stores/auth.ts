@@ -82,6 +82,24 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = false
   }
 
+  function redirectToLogin() {
+    const config = useRuntimeConfig()
+    const apiBase = config.public.apiBase || 'https://api-identity.home.test'
+    if (typeof window !== 'undefined') {
+      window.location.href = `${apiBase}/auth/login`
+    }
+  }
+
+  function redirectToLogout() {
+    const config = useRuntimeConfig()
+    const apiBase = config.public.apiBase || 'https://api-identity.home.test'
+    currentUser.value = null
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('banglipai_session')
+      window.location.href = `${apiBase}/auth/logout`
+    }
+  }
+
   function logout() {
     currentUser.value = null
     if (typeof window !== 'undefined') {
@@ -113,6 +131,8 @@ export const useAuthStore = defineStore('auth', () => {
     initSession,
     login,
     logout,
+    redirectToLogin,
+    redirectToLogout,
     openSsoModal,
     closeSsoModal
   }

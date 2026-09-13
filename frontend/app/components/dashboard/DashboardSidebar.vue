@@ -173,7 +173,7 @@ const emit = defineEmits<{
       </NuxtLink>
 
       <button
-        @click="authStore.logout(); navigateTo('/')"
+        @click="authStore.redirectToLogout()"
         class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
       >
         <LogOut class="w-4 h-4" />

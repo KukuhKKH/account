@@ -155,7 +155,7 @@ function closeDropdowns() {
               </button>
 
               <button
-                @click="authStore.logout()"
+                @click="authStore.redirectToLogout()"
                 class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors text-left"
               >
                 <LogOut class="w-3.5 h-3.5" />
@@ -167,7 +167,7 @@ function closeDropdowns() {
 
         <button
           v-else
-          @click="authStore.openSsoModal()"
+          @click="authStore.redirectToLogin()"
           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all cursor-pointer"
         >
           <Users class="w-3.5 h-3.5" />

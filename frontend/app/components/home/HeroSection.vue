@@ -58,7 +58,7 @@ const clusterStore = useClusterStore()
 
             <button
               v-else
-              @click="authStore.openSsoModal()"
+              @click="authStore.redirectToLogin()"
               class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40 hover:-translate-y-0.5 transition-all cursor-pointer"
             >
               <Users class="w-4 h-4" />

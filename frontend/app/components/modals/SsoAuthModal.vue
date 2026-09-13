@@ -77,10 +77,32 @@ function submitLogin() {
         </p>
       </div>
 
+      <!-- Primary Action: Connect via Logto SSO (BFF) -->
+      <div class="space-y-3">
+        <button
+          type="button"
+          @click="authStore.redirectToLogin()"
+          class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-500 hover:from-indigo-500 hover:to-emerald-400 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40 transition-all cursor-pointer flex items-center justify-center gap-2 hover:-translate-y-0.5"
+        >
+          <ShieldCheck class="w-4 h-4" />
+          <span>Masuk via Logto SSO (BFF Central Engine)</span>
+        </button>
+        <p class="text-[10px] text-center text-slate-400">
+          Mengarahkan langsung ke SSO Auth Provider <span class="font-mono text-indigo-500 dark:text-sky-400">/auth/login</span>
+        </p>
+      </div>
+
+      <!-- Divider -->
+      <div class="relative flex py-1 items-center">
+        <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+        <span class="flex-shrink mx-3 text-[10px] uppercase font-mono text-slate-400">atau Simulasi Dev</span>
+        <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+      </div>
+
       <!-- 1-Click Role Switcher Simulation -->
       <div class="space-y-2">
         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-          Pilih Peran / Akses Akun:
+          Simulasi Peran Lokal (Dev Mode):
         </label>
         <div class="grid grid-cols-3 gap-2">
           
@@ -132,44 +154,16 @@ function submitLogin() {
         </div>
       </div>
 
-      <!-- Login Form -->
-      <form @submit.prevent="submitLogin" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Alamat Email SSO
-          </label>
-          <InputText
-            v-model="emailInput"
-            type="email"
-            class="w-full !px-3.5 !py-2.5 !rounded-xl !text-xs !bg-slate-50 dark:!bg-slate-900 !border-slate-300 dark:!border-slate-700 font-mono"
-            required
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Kata Sandi / Passkey
-          </label>
-          <Password
-            v-model="passwordInput"
-            :feedback="false"
-            toggleMask
-            class="w-full"
-            inputClass="w-full !px-3.5 !py-2.5 !rounded-xl !text-xs !bg-slate-50 dark:!bg-slate-900 !border-slate-300 dark:!border-slate-700 font-mono"
-          />
-        </div>
-
-        <div class="pt-2">
-          <button
-            type="submit"
-            :disabled="authStore.isLoading"
-            class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
-          >
-            <UserCheck class="w-4 h-4" />
-            <span>{{ authStore.isLoading ? 'Memproses Sesi...' : `Masuk Sebagai ${selectedRole}` }}</span>
-          </button>
-        </div>
-      </form>
+      <!-- Quick Login Simulation Button -->
+      <button
+        type="button"
+        @click="submitLogin"
+        :disabled="authStore.isLoading"
+        class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs border border-slate-200 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-2"
+      >
+        <UserCheck class="w-4 h-4 text-indigo-500" />
+        <span>{{ authStore.isLoading ? 'Memproses Sesi...' : `Masuk Simulasi Sebagai ${selectedRole}` }}</span>
+      </button>
 
       <!-- Security Notice -->
       <div class="border-t border-slate-200/80 dark:border-slate-800/80 pt-4 flex items-center justify-center gap-2 text-[11px] text-slate-400 font-mono">
