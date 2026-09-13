@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\UserStatus;
 use Carbon\Carbon;
 use Hypervel\Database\Eloquent\Builder;
 use Hypervel\Database\Eloquent\Collection;
 use Hypervel\Database\Eloquent\Factories\HasFactory;
 use Hypervel\Database\Eloquent\Relations\HasMany;
+use Hypervel\Database\Eloquent\SoftDeletes;
 use Hypervel\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -24,10 +26,12 @@ use Hypervel\Foundation\Auth\User as Authenticatable;
  * @property string|null                             $avatar
  * @property string|null                             $phone
  * @property string|null                             $address
+ * @property UserStatus                              $status
  * @property Carbon|null                             $last_login_at
  * @property array<string, mixed>|null               $custom_data
  * @property Carbon|null                             $created_at
  * @property Carbon|null                             $updated_at
+ * @property Carbon|null                             $deleted_at
  *
  * @property-read Collection<int, UserSignInLog>     $signInLogs
  * @property-read int|null                           $sign_in_logs_count
@@ -51,14 +55,17 @@ use Hypervel\Foundation\Auth\User as Authenticatable;
  * @method static Builder<static>|User whereAvatar(mixed $value)
  * @method static Builder<static>|User wherePhone(mixed $value)
  * @method static Builder<static>|User whereAddress(mixed $value)
+ * @method static Builder<static>|User whereStatus(mixed $value)
  * @method static Builder<static>|User whereLastLoginAt(mixed $value)
  * @method static Builder<static>|User whereCustomData(mixed $value)
  * @method static Builder<static>|User whereCreatedAt(mixed $value)
  * @method static Builder<static>|User whereUpdatedAt(mixed $value)
+ * @method static Builder<static>|User whereDeletedAt(mixed $value)
  */
 class User extends Authenticatable
 {
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * The table associated with the model.
@@ -80,6 +87,7 @@ class User extends Authenticatable
         'avatar',
         'phone',
         'address',
+        'status',
         'last_login_at',
         'custom_data',
     ];
@@ -104,10 +112,12 @@ class User extends Authenticatable
         'id'                => 'integer',
         'email_verified_at' => 'datetime',
         'password'          => 'string',
+        'status'            => UserStatus::class,
         'last_login_at'     => 'datetime',
         'custom_data'       => 'array',
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
+        'deleted_at'        => 'datetime',
     ];
 
     /**
@@ -216,6 +226,22 @@ class User extends Authenticatable
     public function canManageUsers(): bool
     {
         return $this->hasRole(UserRole::ROLE_SUPERADMIN) || $this->hasRole(UserRole::ROLE_ADMIN);
+    }
+
+    /**
+     * Check if user is active.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === UserStatus::Active;
+    }
+
+    /**
+     * Check if user is suspended.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->status === UserStatus::Suspended;
     }
 
     /**
