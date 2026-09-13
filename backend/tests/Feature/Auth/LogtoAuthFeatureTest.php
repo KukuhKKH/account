@@ -8,6 +8,7 @@ use App\Data\Auth\BackchannelLogoutTokenData;
 use App\Models\User;
 use App\Models\UserRole;
 use Hypervel\Foundation\Testing\RefreshDatabase;
+use Hypervel\Support\Facades\Auth;
 use Hypervel\Support\Facades\Config;
 use Tests\TestCase;
 
@@ -17,6 +18,12 @@ use Tests\TestCase;
 class LogtoAuthFeatureTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Auth::guard('session')->logout();
+    }
 
     public function testLoginRedirectsToLogtoAuthorizationUrl(): void
     {

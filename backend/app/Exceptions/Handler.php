@@ -41,6 +41,8 @@ class Handler extends ExceptionHandler
                 || str_starts_with($path, 'api')
                 || str_starts_with($path, 'users')
                 || str_starts_with($path, 'profile')
+                || str_starts_with($path, 'audit-logs')
+                || str_starts_with($path, 'webhooks')
                 || str_starts_with($path, 'auth')
                 || str_starts_with($path, 'me');
         });

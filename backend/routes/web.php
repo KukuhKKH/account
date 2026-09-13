@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Audit\AuditController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
@@ -21,7 +22,7 @@ Route::post('/auth/backchannel-logout', [AuthController::class, 'backchannelLogo
 Route::get('/auth/me', [AuthController::class, 'me'], ['as' => 'auth.me']);
 Route::get('/me', [AuthController::class, 'me'], ['as' => 'me']);
 
-// Protected User Management & Profile BFF Web Endpoints
+// Protected User Management, Profile & Audit Trail BFF Web Endpoints
 Route::addGroup('', function (): void {
     // Profile Self-Management Endpoints
     Route::put('/profile', [ProfileController::class, 'updateProfile'], ['as' => 'profile.update']);
@@ -35,4 +36,10 @@ Route::addGroup('', function (): void {
     Route::delete('/users/{id}', [UserController::class, 'destroy'], ['as' => 'users.destroy']);
     Route::patch('/users/{id}/status', [UserController::class, 'changeStatus'], ['as' => 'users.change-status']);
     Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], ['as' => 'users.reset-password']);
+
+    // Immutable Audit Trail & Telemetry Endpoints
+    Route::get('/audit-logs/passwords', [AuditController::class, 'passwordLogs'], ['as' => 'audit.passwords']);
+    Route::get('/audit-logs/sign-ins', [AuditController::class, 'signInLogs'], ['as' => 'audit.sign-ins']);
+    Route::get('/audit-logs/stats', [AuditController::class, 'stats'], ['as' => 'audit.stats']);
 }, ['middleware' => ['auth:session']]);
+
