@@ -31,12 +31,18 @@ use Hypervel\Support\Facades\Hash;
 use Hypervel\Support\Facades\Log;
 use Hypervel\Support\Str;
 
+use App\Services\Auth\PasswordChangeService;
+
 class UserService
 {
+    protected PasswordChangeService $passwordService;
+
     public function __construct(
-        protected LogtoM2MService $logtoM2M,
-        protected UserPolicy      $policy,
+        protected LogtoM2MService        $logtoM2M,
+        protected UserPolicy             $policy,
+        ?PasswordChangeService           $passwordService = null,
     ) {
+        $this->passwordService = $passwordService ?? new PasswordChangeService($this->logtoM2M, $this->policy);
     }
 
     /**
@@ -486,71 +492,13 @@ class UserService
         AuditContext $context,
         ?string      $reason = null,
     ): User {
-        $user = $target instanceof User ? $target : $this->getUserById($target);
-
-        // 1. Invariant: Anti-Self-Reset on Admin Endpoint
-        if ($actor->id === $user->id) {
-            throw new CannotResetOwnPasswordException('Anda tidak dapat mereset kata sandi akun Anda sendiri melalui menu ini. Silakan gunakan menu Profil Pengguna & Kunci Keamanan dengan memasukkan kata sandi lama Anda.');
-        }
-
-        // 2. Security Policy Gate
-        if (! $this->policy->resetPassword($actor, $user)) {
-            Log::warning('Security Barrier: Unauthorized password reset attempt', [
-                'actor_id'  => $actor->id,
-                'target_id' => $user->id,
-                'ip'        => $context->ipAddress,
-            ]);
-
-            throw new UserAccessDeniedException('Anda tidak memiliki wewenang untuk mereset kata sandi akun ini.');
-        }
-
-        // 3. Sync to Logto Management API
-        $viaLogto = false;
-
-        if (! empty($user->logto_id)) {
-            try {
-                $this->logtoM2M->setUserPassword($user->logto_id, $newPassword);
-                $viaLogto = true;
-            } catch (Exception $e) {
-                Log::warning('Logto M2M password reset sync error: ' . $e->getMessage(), [
-                    'logto_id' => $user->logto_id,
-                ]);
-            }
-        }
-
-        // 4. Database transaction: update password & insert PasswordChangeLog
-        DB::transaction(function () use ($user, $newPassword, $actor, $reason, $context, $viaLogto): void {
-            $user->password = Hash::make($newPassword);
-            $user->save();
-
-            PasswordChangeLog::create([
-                'user_id'            => $user->id,
-                'changed_by_user_id' => $actor->id,
-                'change_type'        => PasswordChangeLog::CHANGE_TYPE_ADMIN_RESET,
-                'ip_address'         => $context->ipAddress,
-                'user_agent'         => $context->userAgent,
-                'reason'             => $reason ?? 'Admin password reset via dashboard',
-                'via_logto_api'      => $viaLogto,
-                'metadata'           => [
-                    'actor_email'  => $actor->email,
-                    'actor_role'   => $actor->getRoleNames(),
-                    'target_email' => $user->email,
-                ],
-            ]);
-        });
-
-        // 5. Security Audit Trail
-        Log::warning('AUDIT: User password reset by administrator', [
-            'action'       => 'user.reset_password',
-            'actor_id'     => $actor->id,
-            'target_id'    => $user->id,
-            'target_email' => $user->email,
-            'via_logto'    => $viaLogto,
-            'ip'           => $context->ipAddress,
-            'user_agent'   => $context->userAgent,
-        ]);
-
-        return $user;
+        return $this->passwordService->adminResetPassword(
+            target:      $target,
+            newPassword: $newPassword,
+            actor:       $actor,
+            context:     $context,
+            reason:      $reason,
+        );
     }
 
     /**
@@ -564,61 +512,11 @@ class UserService
         string       $newPassword,
         AuditContext $context,
     ): User {
-        // 1. Verify current password
-        if (! Hash::check($currentPassword, $user->password)) {
-            Log::warning('Security Alert: Failed current password verification during profile password change', [
-                'user_id'    => $user->id,
-                'user_email' => $user->email,
-                'ip'         => $context->ipAddress,
-            ]);
-
-            throw new InvalidCurrentPasswordException('Kata sandi lama yang Anda masukkan salah.');
-        }
-
-        // 2. Sync to Logto Management API
-        $viaLogto = false;
-
-        if (! empty($user->logto_id)) {
-            try {
-                $this->logtoM2M->setUserPassword($user->logto_id, $newPassword);
-                $viaLogto = true;
-            } catch (Exception $e) {
-                Log::warning('Logto M2M user self-password change sync error: ' . $e->getMessage(), [
-                    'logto_id' => $user->logto_id,
-                ]);
-            }
-        }
-
-        // 3. Database transaction: update password & insert PasswordChangeLog as self_change
-        DB::transaction(function () use ($user, $newPassword, $context, $viaLogto): void {
-            $user->password = Hash::make($newPassword);
-            $user->save();
-
-            PasswordChangeLog::create([
-                'user_id'            => $user->id,
-                'changed_by_user_id' => $user->id,
-                'change_type'        => PasswordChangeLog::CHANGE_TYPE_SELF,
-                'ip_address'         => $context->ipAddress,
-                'user_agent'         => $context->userAgent,
-                'reason'             => 'User changed own password via profile security settings',
-                'via_logto_api'      => $viaLogto,
-                'metadata'           => [
-                    'user_email' => $user->email,
-                    'roles'      => $user->getRoleNames(),
-                ],
-            ]);
-        });
-
-        // 4. Security Audit Log
-        Log::info('AUDIT: User successfully changed own password', [
-            'action'     => 'user.change_own_password',
-            'user_id'    => $user->id,
-            'user_email' => $user->email,
-            'via_logto'  => $viaLogto,
-            'ip'         => $context->ipAddress,
-            'user_agent' => $context->userAgent,
-        ]);
-
-        return $user;
+        return $this->passwordService->changeOwnPassword(
+            user:            $user,
+            currentPassword: $currentPassword,
+            newPassword:     $newPassword,
+            context:         $context,
+        );
     }
 }

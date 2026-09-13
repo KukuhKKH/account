@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PasswordChangeType;
 use Carbon\Carbon;
 use Hypervel\Database\Eloquent\Builder;
 use Hypervel\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Hypervel\Database\Eloquent\Relations\BelongsTo;
  * @property int                       $id
  * @property int                       $user_id
  * @property int|null                  $changed_by_user_id
- * @property string                    $change_type
+ * @property PasswordChangeType        $change_type
  * @property string|null               $ip_address
  * @property string|null               $user_agent
  * @property string|null               $reason
@@ -46,6 +47,7 @@ class PasswordChangeLog extends Model
     public const string CHANGE_TYPE_SELF         = 'self_change';
     public const string CHANGE_TYPE_ADMIN_RESET  = 'admin_reset';
     public const string CHANGE_TYPE_SYSTEM_RESET = 'system_reset';
+    public const string CHANGE_TYPE_WEBHOOK_SYNC = 'webhook_sync';
 
     /**
      * The table associated with the model.
@@ -84,6 +86,7 @@ class PasswordChangeLog extends Model
         'id'                 => 'integer',
         'user_id'            => 'integer',
         'changed_by_user_id' => 'integer',
+        'change_type'        => PasswordChangeType::class,
         'via_logto_api'      => 'boolean',
         'metadata'           => 'array',
         'created_at'         => 'datetime',
@@ -117,7 +120,7 @@ class PasswordChangeLog extends Model
      */
     public function isSelfChange(): bool
     {
-        return $this->change_type === self::CHANGE_TYPE_SELF;
+        return $this->change_type === PasswordChangeType::SelfChange;
     }
 
     /**
@@ -127,7 +130,7 @@ class PasswordChangeLog extends Model
      */
     public function isAdminReset(): bool
     {
-        return $this->change_type === self::CHANGE_TYPE_ADMIN_RESET;
+        return $this->change_type === PasswordChangeType::AdminReset;
     }
 
     /**
@@ -137,7 +140,7 @@ class PasswordChangeLog extends Model
      */
     public function isSystemReset(): bool
     {
-        return $this->change_type === self::CHANGE_TYPE_SYSTEM_RESET;
+        return $this->change_type === PasswordChangeType::SystemReset;
     }
 
     /**
@@ -148,21 +151,21 @@ class PasswordChangeLog extends Model
     public function getDescription(): string
     {
         if ($this->isSelfChange()) {
-            return 'User changed their own password';
+            return 'Pengguna memperbarui kata sandi mandiri via profil';
         }
 
         if ($this->isAdminReset() && $this->changedBy !== null) {
             return sprintf(
-                'Password reset by %s (%s)',
+                'Kata sandi diatur ulang oleh Administrator %s (%s)',
                 $this->changedBy->name,
                 $this->changedBy->email,
             );
         }
 
         if ($this->isSystemReset()) {
-            return 'System-initiated password reset';
+            return 'Pengaturan ulang kata sandi oleh sistem otomatis';
         }
 
-        return 'Password change';
+        return 'Perubahan kata sandi akun';
     }
 }
