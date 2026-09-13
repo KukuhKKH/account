@@ -36,6 +36,8 @@ export function useAuth() {
   const redirectToLogout = () => authStore.redirectToLogout()
   const openSsoModal = () => authStore.openSsoModal()
   const closeSsoModal = () => authStore.closeSsoModal()
+  const updateProfile = (payload: { name?: string; phone?: string }) => authStore.updateProfile(payload)
+  const changePassword = (payload: { current_password: string; new_password: string }) => authStore.changePassword(payload)
 
   return {
     // State & Getters
@@ -63,6 +65,8 @@ export function useAuth() {
     redirectToLogout,
     openSsoModal,
     closeSsoModal,
+    updateProfile,
+    changePassword,
 
     // Raw store instance if needed
     authStore

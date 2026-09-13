@@ -1,24 +1,31 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth'
+import { useUsers, type UserRecord } from '~/composables/useUsers'
 import DashboardHeader from '~/components/dashboard/DashboardHeader.vue'
 import UserAvatar from '~/components/UserAvatar.vue'
-import type { UserAccountItem, UserRoleType } from '~/types/auth'
+import CreateUserModal from '~/components/modals/CreateUserModal.vue'
+import EditUserModal from '~/components/modals/EditUserModal.vue'
+import DeleteUserDialog from '~/components/modals/DeleteUserDialog.vue'
+import SuspendUserDialog from '~/components/modals/SuspendUserDialog.vue'
+import ResetPasswordModal from '~/components/modals/ResetPasswordModal.vue'
+import type { UserRoleType } from '~/types/auth'
 import {
-  Users,
   Search,
   Plus,
-  ShieldCheck,
-  ShieldAlert,
-  User,
   KeyRound,
   Fingerprint,
-  MoreVertical,
   Check,
   Copy,
   UserX,
   UserCheck,
   Sparkles,
-  Filter
+  RefreshCw,
+  Trash2,
+  Edit3,
+  ShieldCheck,
+  Lock,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 
 definePageMeta({
@@ -26,73 +33,72 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-const { user, canManageUsers, isSuperadmin } = useAuth()
+const { user: currentUser, canManageUsers, isSuperadmin } = useAuth()
+const {
+  users,
+  meta,
+  isLoading,
+  error,
+  fetchUsers,
+  changeStatus
+} = useUsers()
 
-// Mock Directory
-const userList = ref<UserAccountItem[]>([
-  {
-    id: 'usr_98a72b',
-    name: 'Kukuh (Suamiku)',
-    email: 'kukuh@banglipai.web.id',
-    role: 'Superadmin',
-    status: 'active',
-    lastActive: 'Baru saja',
-    authMethod: 'SSO Passkey'
-  },
-  {
-    id: 'usr_54c81f',
-    name: 'DevOps Administrator',
-    email: 'admin@banglipai.web.id',
-    role: 'Admin Account',
-    status: 'active',
-    lastActive: '5 menit lalu',
-    authMethod: 'BFF Session'
-  },
-  {
-    id: 'usr_23d90a',
-    name: 'Ahmad Fauzi',
-    email: 'fauzi@banglipai.web.id',
-    role: 'User',
-    status: 'active',
-    lastActive: '1 jam lalu',
-    authMethod: 'Password'
-  },
-  {
-    id: 'usr_76e43c',
-    name: 'Siti Nurhaliza',
-    email: 'siti@banglipai.web.id',
-    role: 'User',
-    status: 'active',
-    lastActive: '3 jam lalu',
-    authMethod: 'SSO Passkey'
-  },
-  {
-    id: 'usr_11b29d',
-    name: 'Budi Santoso',
-    email: 'budi@banglipai.web.id',
-    role: 'User',
-    status: 'suspended',
-    lastActive: '3 hari lalu',
-    authMethod: 'Password'
-  }
-])
+const toast = useToast()
 
+// Filter & Search State
 const searchQuery = ref('')
 const selectedRoleFilter = ref<string>('all')
 const copiedEmail = ref<string | null>(null)
 
-const filteredUsers = computed(() => {
-  return userList.value.filter(u => {
-    const matchQuery = !searchQuery.value || 
-      u.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-      u.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      u.id.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchRole = selectedRoleFilter.value === 'all' || u.role === selectedRoleFilter.value
+// Modals State
+const showCreateModal = ref(false)
+const showEditModal = ref(false)
+const showDeleteDialog = ref(false)
+const showSuspendDialog = ref(false)
+const showResetPasswordModal = ref(false)
+const selectedUserForEdit = ref<UserRecord | null>(null)
+const selectedUserForDelete = ref<UserRecord | null>(null)
+const selectedUserForSuspend = ref<UserRecord | null>(null)
+const selectedUserForResetPassword = ref<UserRecord | null>(null)
 
-    return matchQuery && matchRole
-  })
+// Action loading indicators per-user
+const togglingUserId = ref<string | null>(null)
+
+// Initial fetch on mount
+onMounted(() => {
+  fetchUsers()
 })
+
+// Debounced search watcher
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+watch(searchQuery, (newVal) => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    fetchUsers({
+      search: newVal,
+      role: selectedRoleFilter.value,
+      page: 1
+    })
+  }, 350)
+})
+
+function onFilterRole(role: string) {
+  selectedRoleFilter.value = role
+  fetchUsers({
+    search: searchQuery.value,
+    role: role,
+    page: 1
+  })
+}
+
+function onPageChange(newPage: number) {
+  if (newPage < 1 || newPage > meta.value.lastPage) return
+  fetchUsers({
+    search: searchQuery.value,
+    role: selectedRoleFilter.value,
+    page: newPage
+  })
+}
 
 function copyToClipboard(text: string) {
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -104,19 +110,80 @@ function copyToClipboard(text: string) {
   }
 }
 
-function toggleUserStatus(targetUser: UserAccountItem) {
-  if (targetUser.role === 'Superadmin') return
-  targetUser.status = targetUser.status === 'active' ? 'suspended' : 'active'
+function openEditModal(target: UserRecord) {
+  selectedUserForEdit.value = target
+  showEditModal.value = true
 }
 
-function getAvatarGradient(role: UserRoleType): string {
-  switch (role) {
-    case 'Superadmin':
-      return 'from-rose-500 to-pink-600 shadow-rose-500/20'
-    case 'Admin Account':
-      return 'from-sky-500 to-indigo-600 shadow-sky-500/20'
-    default:
-      return 'from-indigo-500 to-violet-600 shadow-indigo-500/20'
+function openDeleteDialog(target: UserRecord) {
+  selectedUserForDelete.value = target
+  showDeleteDialog.value = true
+}
+
+function openSuspendDialog(target: UserRecord) {
+  selectedUserForSuspend.value = target
+  showSuspendDialog.value = true
+}
+
+function openResetPasswordModal(target: UserRecord) {
+  if (currentUser.value && String(target.id) === String(currentUser.value.id)) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Akun Sendiri',
+      detail: 'Untuk mengubah kata sandi akun sendiri, silakan buka menu Profil Pengguna & Kunci Keamanan dan masukkan kata sandi lama.',
+      life: 5000
+    })
+    return
+  }
+
+  selectedUserForResetPassword.value = target
+  showResetPasswordModal.value = true
+}
+
+async function handleToggleStatus(target: UserRecord) {
+  // Prevent self-suspension or suspending Superadmin if actor is not authorized
+  if (currentUser.value && String(target.id) === String(currentUser.value.id)) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Tindakan Dicegah',
+      detail: 'Anda tidak dapat menangguhkan akun Anda sendiri.',
+      life: 3500
+    })
+    return
+  }
+
+  if (target.role === 'Superadmin') {
+    toast.add({
+      severity: 'error',
+      summary: 'Kebijakan Keamanan',
+      detail: 'Akun Superadmin tidak dapat ditangguhkan demi kestabilan cluster.',
+      life: 4000
+    })
+    return
+  }
+
+  togglingUserId.value = target.id
+
+  try {
+    const desiredStatus = target.status === 'active' ? 'suspended' : 'active'
+    const res = await changeStatus(target.id, desiredStatus)
+    await fetchUsers()
+    toast.add({
+      severity: 'success',
+      summary: 'Status Diperbarui',
+      detail: res.message || 'Status akun berhasil diperbarui.',
+      life: 3500
+    })
+  } catch (err: unknown) {
+    const e = err as Error
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal Mengubah Status',
+      detail: e.message || 'Terjadi kesalahan saat memproses status akun.',
+      life: 4000
+    })
+  } finally {
+    togglingUserId.value = null
   }
 }
 </script>
@@ -141,7 +208,11 @@ function getAvatarGradient(role: UserRoleType): string {
                 Direktori Akun Pengguna
               </h2>
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-sky-400 border border-indigo-200 dark:border-indigo-800">
-                {{ filteredUsers.length }} Akun
+                {{ meta.total }} Akun
+              </span>
+              <span v-if="isLoading" class="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+                <RefreshCw class="w-3 h-3 animate-spin text-indigo-500" />
+                <span>Menyinkronkan...</span>
               </span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -166,7 +237,7 @@ function getAvatarGradient(role: UserRoleType): string {
             <div class="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
               <button
                 type="button"
-                @click="selectedRoleFilter = 'all'"
+                @click="onFilterRole('all')"
                 class="px-3 py-1.5 rounded-xl transition-all font-medium cursor-pointer"
                 :class="selectedRoleFilter === 'all' 
                   ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold' 
@@ -176,7 +247,7 @@ function getAvatarGradient(role: UserRoleType): string {
               </button>
               <button
                 type="button"
-                @click="selectedRoleFilter = 'Superadmin'"
+                @click="onFilterRole('Superadmin')"
                 class="px-3 py-1.5 rounded-xl transition-all font-medium cursor-pointer"
                 :class="selectedRoleFilter === 'Superadmin' 
                   ? 'bg-rose-500 text-white shadow-xs font-bold' 
@@ -186,7 +257,7 @@ function getAvatarGradient(role: UserRoleType): string {
               </button>
               <button
                 type="button"
-                @click="selectedRoleFilter = 'Admin Account'"
+                @click="onFilterRole('Admin Account')"
                 class="px-3 py-1.5 rounded-xl transition-all font-medium cursor-pointer"
                 :class="selectedRoleFilter === 'Admin Account' 
                   ? 'bg-sky-500 text-white shadow-xs font-bold' 
@@ -196,7 +267,7 @@ function getAvatarGradient(role: UserRoleType): string {
               </button>
               <button
                 type="button"
-                @click="selectedRoleFilter = 'User'"
+                @click="onFilterRole('User')"
                 class="px-3 py-1.5 rounded-xl transition-all font-medium cursor-pointer"
                 :class="selectedRoleFilter === 'User' 
                   ? 'bg-indigo-500 text-white shadow-xs font-bold' 
@@ -209,6 +280,7 @@ function getAvatarGradient(role: UserRoleType): string {
             <!-- Add User Button -->
             <button
               type="button"
+              @click="showCreateModal = true"
               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-500 hover:from-indigo-500 hover:to-sky-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all cursor-pointer hover:-translate-y-0.5"
             >
               <Plus class="w-4 h-4" />
@@ -224,9 +296,10 @@ function getAvatarGradient(role: UserRoleType): string {
         <!-- ============================================== -->
         <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden bg-white/40 dark:bg-slate-950/40 backdrop-blur-md">
           <DataTable
-            :value="filteredUsers"
+            :value="users"
             responsiveLayout="scroll"
             class="p-datatable-modern text-xs"
+            :loading="isLoading && users.length === 0"
             :pt="{
               table: { class: '!w-full !border-collapse' },
               thead: { class: '!bg-slate-100/70 dark:!bg-slate-900/80 !border-b !border-slate-200/80 dark:!border-slate-800/80' },
@@ -241,7 +314,7 @@ function getAvatarGradient(role: UserRoleType): string {
                   <UserAvatar
                     :name="data.name"
                     :email="data.email"
-                    :avatar="data.avatarUrl"
+                    :avatar="data.avatar"
                     :role="data.role"
                     size="md"
                     class="shadow-md"
@@ -252,7 +325,7 @@ function getAvatarGradient(role: UserRoleType): string {
                       <Sparkles v-if="data.role === 'Superadmin'" class="w-3.5 h-3.5 text-amber-500" />
                     </p>
                     <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">
-                      {{ data.id }}
+                      ID: {{ data.id }} {{ data.logtoId ? `• ${data.logtoId}` : '' }}
                     </p>
                   </div>
                 </div>
@@ -332,29 +405,57 @@ function getAvatarGradient(role: UserRoleType): string {
             </Column>
 
             <!-- Column 7: Action Controls -->
-            <Column header="Aksi" style="min-width: 120px" class="text-right">
+            <Column header="Aksi" style="min-width: 140px" class="text-right">
               <template #body="{ data }">
                 <div class="flex items-center justify-end gap-1.5">
+                  
+                  <!-- Edit Button -->
                   <button
                     type="button"
-                    class="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 transition-all cursor-pointer hover:border-indigo-500/50"
+                    @click="openEditModal(data)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 transition-all cursor-pointer hover:border-indigo-500/50"
                   >
-                    Edit
+                    <Edit3 class="w-3 h-3 text-slate-400" />
+                    <span>Edit</span>
                   </button>
 
+                  <!-- Reset Password Button -->
+                  <button
+                    v-if="(isSuperadmin || data.role === 'User') && (!currentUser || String(data.id) !== String(currentUser.id))"
+                    type="button"
+                    @click="openResetPasswordModal(data)"
+                    class="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-600 dark:hover:text-sky-400 hover:border-indigo-200 dark:hover:border-indigo-900/40 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 transition-all cursor-pointer"
+                    title="Reset Kata Sandi"
+                  >
+                    <KeyRound class="w-3.5 h-3.5" />
+                  </button>
+
+                  <!-- Toggle Suspend Button -->
                   <button
                     v-if="data.role !== 'Superadmin'"
                     type="button"
-                    @click="toggleUserStatus(data)"
-                    class="p-1.5 rounded-xl border transition-all cursor-pointer"
+                    @click="openSuspendDialog(data)"
+                    class="p-1.5 rounded-xl border transition-all cursor-pointer disabled:opacity-50"
                     :class="data.status === 'active' 
                       ? 'border-rose-200 dark:border-rose-900/40 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50' 
                       : 'border-emerald-200 dark:border-emerald-900/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'"
-                    :title="data.status === 'active' ? 'Suspend Akun' : 'Aktifkan Akun'"
+                    :title="data.status === 'active' ? 'Tangguhkan Akun' : 'Aktifkan Akun'"
                   >
                     <UserX v-if="data.status === 'active'" class="w-3.5 h-3.5" />
                     <UserCheck v-else class="w-3.5 h-3.5" />
                   </button>
+
+                  <!-- Delete Button -->
+                  <button
+                    v-if="isSuperadmin || data.role === 'User'"
+                    type="button"
+                    @click="openDeleteDialog(data)"
+                    class="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-600 hover:border-rose-200 dark:hover:border-rose-900/40 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all cursor-pointer"
+                    title="Hapus Pengguna"
+                  >
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+
                 </div>
               </template>
             </Column>
@@ -372,10 +473,81 @@ function getAvatarGradient(role: UserRoleType): string {
               </div>
             </template>
           </DataTable>
+
+          <!-- Modern Bottom Pagination Bar -->
+          <div v-if="meta.lastPage > 1" class="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between text-xs">
+            <p class="text-slate-500 dark:text-slate-400">
+              Menampilkan halaman <span class="font-bold text-slate-900 dark:text-white">{{ meta.currentPage }}</span> dari <span class="font-bold text-slate-900 dark:text-white">{{ meta.lastPage }}</span> (Total {{ meta.total }} pengguna)
+            </p>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                @click="onPageChange(meta.currentPage - 1)"
+                :disabled="meta.currentPage <= 1"
+                class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+
+              <span class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-800 dark:text-white">
+                {{ meta.currentPage }}
+              </span>
+
+              <button
+                type="button"
+                @click="onPageChange(meta.currentPage + 1)"
+                :disabled="meta.currentPage >= meta.lastPage"
+                class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <ChevronRight class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
         </div>
 
       </div>
 
     </main>
+
+    <!-- Modals Section -->
+    <CreateUserModal
+      v-model="showCreateModal"
+      :isSuperadmin="isSuperadmin"
+      @created="fetchUsers"
+    />
+
+    <EditUserModal
+      v-model="showEditModal"
+      :user="selectedUserForEdit"
+      :isSuperadmin="isSuperadmin"
+      @updated="fetchUsers"
+    />
+
+    <DeleteUserDialog
+      v-model="showDeleteDialog"
+      :user="selectedUserForDelete"
+      :currentUserId="currentUser?.id"
+      :isSuperadmin="isSuperadmin"
+      @deleted="fetchUsers"
+    />
+
+    <SuspendUserDialog
+      v-model="showSuspendDialog"
+      :user="selectedUserForSuspend"
+      :currentUserId="currentUser?.id"
+      :isSuperadmin="isSuperadmin"
+      @statusChanged="fetchUsers"
+    />
+
+    <ResetPasswordModal
+      v-model="showResetPasswordModal"
+      :user="selectedUserForResetPassword"
+      :currentUserId="currentUser?.id"
+      :isSuperadmin="isSuperadmin"
+      @passwordReset="fetchUsers"
+    />
+
   </div>
 </template>

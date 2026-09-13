@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { AuthUser, UserRoleType, LoginCredentials, ApiMeResponse } from '~/types/auth'
+import type { AuthUser, UserRoleType, LoginCredentials, ApiMeResponse, ApiUserData } from '~/types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const currentUser = ref<AuthUser | null>(null)
@@ -224,6 +224,60 @@ export const useAuthStore = defineStore('auth', () => {
     ssoDialogVisible.value = false
   }
 
+  async function updateProfile(payload: { name?: string; phone?: string }): Promise<{ success: boolean; message: string }> {
+    const config = useRuntimeConfig()
+    const apiBase = config.public.apiBase || 'https://api-identity.home.test'
+
+    try {
+      const res = await $fetch<{ success: boolean; message: string; user?: ApiUserData }>(`${apiBase}/profile`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: payload
+      })
+
+      if (res.success && currentUser.value) {
+        if (payload.name) currentUser.value.name = payload.name
+        if (payload.phone !== undefined) currentUser.value.phone = payload.phone
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('banglipai_session', JSON.stringify(currentUser.value))
+        }
+      }
+
+      return res
+    } catch (err: unknown) {
+      const fetchError = err as { data?: { message?: string } }
+      const errMsg = fetchError?.data?.message || 'Gagal memperbarui profil.'
+      throw new Error(errMsg)
+    }
+  }
+
+  async function changePassword(payload: { current_password: string; new_password: string }): Promise<{ success: boolean; message: string }> {
+    const config = useRuntimeConfig()
+    const apiBase = config.public.apiBase || 'https://api-identity.home.test'
+
+    try {
+      const res = await $fetch<{ success: boolean; message: string }>(`${apiBase}/profile/change-password`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: payload
+      })
+
+      return res
+    } catch (err: unknown) {
+      const fetchError = err as { data?: { message?: string } }
+      const errMsg = fetchError?.data?.message || 'Gagal mengubah kata sandi akun.'
+      throw new Error(errMsg)
+    }
+  }
+
   return {
     currentUser,
     ssoDialogVisible,
@@ -246,7 +300,9 @@ export const useAuthStore = defineStore('auth', () => {
     redirectToLogin,
     redirectToLogout,
     openSsoModal,
-    closeSsoModal
+    closeSsoModal,
+    updateProfile,
+    changePassword
   }
 })
 
